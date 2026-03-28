@@ -73,6 +73,7 @@ class ServerMonitor {
         } else if (!this.isShuttingDown && Date.now() - this.idleStartedAt >= config.idle.timeoutMs) {
           this.isShuttingDown = true;
           const minutes = Math.round(config.idle.timeoutMs / 60_000);
+          log.info("Idle timeout reached, shutdown scheduled", { gracePeriodMs: config.idle.gracePeriodMs });
           await sendToChannel(msg.idleShutdownWarning(minutes));
 
           setTimeout(async () => {
@@ -116,11 +117,13 @@ class ServerMonitor {
       // Name-based tracking
       for (const name of currentPlayers) {
         if (!this.previousPlayers.has(name)) {
+          log.info("Player joined", { name, count: currentCount, max: maxPlayers });
           messages.push(msg.playerJoined(name));
         }
       }
       for (const name of this.previousPlayers) {
         if (!currentSet.has(name)) {
+          log.info("Player left", { name, count: currentCount, max: maxPlayers });
           messages.push(msg.playerLeft(name));
         }
       }
@@ -129,8 +132,10 @@ class ServerMonitor {
       // Count-based fallback
       const diff = currentCount - this.previousCount;
       if (diff > 0) {
+        log.info("Players joined", { diff, count: currentCount, max: maxPlayers });
         messages.push(msg.playersJoined(diff, currentCount, maxPlayers));
       } else if (diff < 0) {
+        log.info("Players left", { diff: Math.abs(diff), count: currentCount, max: maxPlayers });
         messages.push(msg.playersLeft(Math.abs(diff), currentCount, maxPlayers));
       }
     }

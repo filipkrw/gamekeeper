@@ -89,7 +89,10 @@ async function waitForGameReady(
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     const status = await queryServer(host, port);
-    if (status?.online) return;
+    if (status?.online) {
+      log.info("Game server ready", { host, port });
+      return;
+    }
     await Bun.sleep(10_000);
   }
 }
