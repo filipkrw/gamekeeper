@@ -22,10 +22,10 @@ bun install
 ### 2. Configure environment
 
 ```bash
-cp .env.example .env
+bun run template enshrouded
 ```
 
-Fill in the values — see [Configuration](#configuration) below.
+This creates a `.env` with game-specific values pre-filled. Fill in the credentials — see [Configuration](#configuration) below. Use `--force` to overwrite an existing `.env`.
 
 ### 3. Register slash commands (one-time)
 
