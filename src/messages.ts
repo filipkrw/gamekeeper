@@ -27,7 +27,7 @@ export const msg = {
   creatingSnapshot: "Zapisuję stan serwera...",
   snapshotFailed: "Zapis nie powiódł się, zostawiam serwer w spokoju.",
   playerJoinedDuringSnapshot:
-    "Ktoś dołączył podczas zapisywania. Serwer pozostaje włączony.",
+    "Ktoś dołączył podczas zapisywania — wyłączanie anulowane. Serwer pozostaje włączony.",
   deletingServer: "Serwer zapisana. Wyłączam...",
   serverStopped: "Serwer zatrzymany i zapisany.",
   stopFailed: (error: string) => `Nie udało się zatrzymać serwera: ${error}`,
