@@ -21,11 +21,19 @@ bun install
 
 ### 2. Configure environment
 
+If your game has a template, generate a pre-filled `.env`:
+
 ```bash
-bun run template enshrouded
+bun run template enshrouded   # use --force to overwrite an existing .env
 ```
 
-This creates a `.env` with game-specific values pre-filled. Fill in the credentials — see [Configuration](#configuration) below. Use `--force` to overwrite an existing `.env`.
+Otherwise, copy the example manually:
+
+```bash
+cp .env.example .env
+```
+
+Then fill in the credentials — see [Configuration](#configuration) below.
 
 ### 3. Register slash commands (one-time)
 
