@@ -37,7 +37,7 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
           name: "Players",
           value: status
             ? `${status.playerCount}/${status.maxPlayers}`
-            : "Unknown",
+            : "-",
           inline: true,
         }
       );

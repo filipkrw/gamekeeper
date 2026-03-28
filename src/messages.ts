@@ -16,7 +16,6 @@ export const msg = {
   waitingForGame: "Server created. Waiting for game server to start...",
   serverReady: (hostname: string) =>
     `Server is ready! Connect to \`${hostname}\``,
-  serverStarting: () => `Server is running, starting game server...`,
   startFailed: (error: string) => `Failed to start server: ${error}`,
 
   // --- /stop ---

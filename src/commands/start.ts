@@ -63,13 +63,8 @@ export async function handleStart(
 
     // Wait for game server to be queryable
     await interaction.editReply(msg.waitingForGame);
-    const ready = await waitForGameReady(ip, config.game.queryPort, config.game.serverReadyTimeoutMs);
-
-    if (ready) {
-      await interaction.editReply(msg.serverReady(hostname));
-    } else {
-      await interaction.editReply(msg.serverStarting());
-    }
+    await waitForGameReady(ip, config.game.queryPort, config.game.serverReadyTimeoutMs);
+    await interaction.editReply(msg.serverReady(hostname));
   } catch (error) {
     log.error("Start command failed", { error: String(error) });
     const errorMsg = msg.startFailed(
@@ -90,12 +85,11 @@ async function waitForGameReady(
   host: string,
   port: number,
   timeoutMs: number,
-): Promise<boolean> {
+): Promise<void> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     const status = await queryServer(host, port);
-    if (status?.online) return true;
+    if (status?.online) return;
     await Bun.sleep(10_000);
   }
-  return false;
 }
