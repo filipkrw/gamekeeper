@@ -1,7 +1,6 @@
 const templates: Record<string, Record<string, string>> = {
   enshrouded: {
     HETZNER_SERVER_NAME: "enshrouded",
-    HETZNER_LOCATION: "fsn1",
     GAME_TYPE: "enshrouded",
     GAME_QUERY_PORT: "15637",
   },
