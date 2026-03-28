@@ -16,7 +16,7 @@ bun run dev          # start with --watch
 bun run start        # production start
 bun run register     # register slash commands with Discord (one-time)
 bun test             # run all tests
-docker compose up -d # deploy via Docker
+docker compose up -d --build # deploy via Docker
 ```
 
 ## Project Structure
