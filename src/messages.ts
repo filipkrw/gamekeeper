@@ -4,51 +4,53 @@ export const msg = {
   // --- Shared ---
   operationInProgress: (owner: string | null) =>
     owner
-      ? `A \`/${owner}\` operation is already in progress.`
-      : "Another operation is already in progress.",
+      ? `Operacja \`/${owner}\` jest już w toku.`
+      : "Inna operacja jest już w toku.",
 
   // --- /start ---
-  serverAlreadyRunning: "Server is already running.",
-  noSnapshotsFound: "No snapshots found. Cannot start server.",
-  creatingServer: "Creating server from snapshot...",
+  serverAlreadyRunning: "Serwer już działa.",
+  noSnapshotsFound:
+    "Nie znaleziono żadnego zapisu gry. Nie można uruchomić serwera.",
+  creatingServer: "Przywracam serwer z ostatniego zapisu...",
   dnsUpdateFailed: (ip: string) =>
-    `Domain update failed. Connect using IP: \`${ip}\``,
-  waitingForGame: "Server created. Waiting for game server to start...",
+    `Aktualizacja domeny nie powiodła się. Połącz się przez IP: \`${ip}\``,
+  waitingForGame: "Serwer utworzony. Czekam na uruchomienie gry...",
   serverReady: (hostname: string) =>
-    `Server is ready! Connect to \`${hostname}\``,
-  startFailed: (error: string) => `Failed to start server: ${error}`,
+    `Serwer gotowy! Połącz się z \`${hostname}\``,
+  startFailed: (error: string) => `Nie udało się uruchomić serwera: ${error}`,
 
   // --- /stop ---
-  noServerRunning: "No server is running.",
+  noServerRunning: "Żaden serwer nie jest uruchomiony.",
   playersOnline: (count: number) =>
-    `Cannot stop: ${count} player(s) are currently online.`,
-  creatingSnapshot: "Creating snapshot...",
-  snapshotFailed:
-    "Snapshot failed after 2 attempts. Server NOT deleted to prevent data loss.",
+    `Nie można zatrzymać: na serwerze jest ${count} ${count === 1 ? "gracz" : "graczy"}.`,
+  creatingSnapshot: "Zapisuję grę...",
+  snapshotFailed: "Zapis nie powiódł się, zostawiam serwer w spokoju.",
   playerJoinedDuringSnapshot:
-    "Player(s) joined during snapshot. Server kept alive.",
-  deletingServer: "Snapshot saved. Deleting server...",
-  serverStopped: "Server stopped and saved.",
-  stopFailed: (error: string) => `Failed to stop server: ${error}`,
+    "Ktoś dołączył podczas zapisywania. Serwer pozostaje włączony.",
+  deletingServer: "Gra zapisana. Wyłączam serwer...",
+  serverStopped: "Serwer zatrzymany i zapisany.",
+  stopFailed: (error: string) => `Nie udało się zatrzymać serwera: ${error}`,
 
   // --- /status ---
-  serverOffline: "Server is offline.",
-  statusTitle: "Enshrouded Server Status",
+  serverOffline: "Serwer jest offline.",
+  statusTitle: "Status",
   statusOnline: "Online",
-  statusStarting: "Starting...",
-  statusFailed: "Failed to fetch server status.",
+  statusStarting: "Uruchamianie...",
+  statusFailed: "Nie udało się pobrać statusu serwera.",
 
   // --- Monitor ---
-  serverUnreachable: "Game server is unreachable. Shutting down...",
+  serverUnreachable: "Serwer jest nieosiągalny. Wyłączam...",
   idleShutdownWarning: (minutes: number) =>
-    `No players detected for ${minutes} minutes. Shutting down in 2 minutes...`,
-  shutdownCancelled: "Player joined — shutdown cancelled.",
-  autoStopped: "Server auto-stopped due to inactivity.",
-  playerJoined: (name: string) => `**${name}** joined the server`,
-  playerLeft: (name: string) => `**${name}** left the server`,
+    `Brak graczy od ${minutes} ${minutes === 1 ? "minuty" : "minut"}. Wyłączam za 2 minuty...`,
+  shutdownCancelled: "Ktoś dołączył — wyłączanie anulowane.",
+  autoStopped:
+    "Serwer został automatycznie wyłączony z powodu braku aktywności.",
+  playerJoined: (name: string) => `**${name}** dołączył do serwera`,
+  playerLeft: (name: string) => `**${name}** opuścił serwer`,
   playersJoined: (count: number, current: number, max: number) =>
-    `${count === 1 ? "Player" : `${count} players`} joined (${current}/${max})`,
+    `${count === 1 ? "Gracz dołączył" : `${count} graczy dołączyło`} (${current}/${max})`,
   playersLeft: (count: number, current: number, max: number) =>
-    `${count === 1 ? "Player" : `${count} players`} left (${current}/${max})`,
-  autoStopFailed: (error: string) => `Auto-stop failed: ${error}`,
+    `${count === 1 ? "Gracz opuścił serwer" : `${count} graczy opuściło serwer`} (${current}/${max})`,
+  autoStopFailed: (error: string) =>
+    `Automatyczne wyłączenie nie powiodło się: ${error}`,
 };
