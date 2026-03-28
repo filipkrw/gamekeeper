@@ -77,7 +77,7 @@ The bot updates a DNS A record to point to the server's IP when it starts.
 |---|---|---|
 | `CLOUDFLARE_API_TOKEN` | yes | Cloudflare Dashboard → **My Profile** → **API Tokens** → **Create Token** → use the **Edit zone DNS** template. Requires Zone:DNS:Edit permission. |
 | `CLOUDFLARE_ZONE_ID` | yes | Cloudflare Dashboard → select your domain → **Overview** → Zone ID in the right sidebar |
-| `CLOUDFLARE_RECORD_ID` | yes | ID of the A record to update. Fetch it with: `curl "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records?type=A" -H "Authorization: Bearer <TOKEN>"` |
+| `CLOUDFLARE_RECORD_ID` | yes | ID of the A record to update. Run `CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ZONE_ID=... bun run cf-records` to list all A records with their IDs. |
 | `CLOUDFLARE_DOMAIN` | yes | The full domain of the A record, e.g. `game.example.com` |
 
 ### Game server

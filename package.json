@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
-    "register": "bun src/commands/register.ts"
+    "register": "bun src/commands/register.ts",
+    "cf-records": "bun src/scripts/cloudflare-records.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
