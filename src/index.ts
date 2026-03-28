@@ -6,10 +6,12 @@ import { handleStop } from "./commands/stop.ts";
 import { handleStatus } from "./commands/status.ts";
 import { monitor } from "./monitor.ts";
 import { log } from "./logger.ts";
+import { locale } from "./messages.ts";
 
 client.once("clientReady", async () => {
   log.info(`Logged in as ${client.user?.tag}`);
   log.info("Config", {
+    locale,
     gameType: config.game.type,
     queryPort: config.game.queryPort,
     serverName: config.hetzner.serverName,

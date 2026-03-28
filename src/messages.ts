@@ -131,3 +131,4 @@ const locales = {
 } satisfies Record<Locale, unknown>;
 
 export const msg = locales[locale];
+export { locale };
