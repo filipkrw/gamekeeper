@@ -1,3 +1,12 @@
+import { games } from "gamedig";
+
+function requiredGameType(name: string): string {
+  const value = Bun.env[name];
+  if (!value) throw new Error(`Missing required environment variable: ${name}`);
+  if (!(value in games)) throw new Error(`Unsupported game type: ${value}`);
+  return value;
+}
+
 function required(name: string): string {
   const value = Bun.env[name];
   if (!value) throw new Error(`Missing required environment variable: ${name}`);
@@ -36,6 +45,7 @@ export const config = Object.freeze({
     domain: required("CLOUDFLARE_DOMAIN"),
   },
   game: {
+    type: requiredGameType("GAME_TYPE"),
     queryPort: optionalInt("GAME_QUERY_PORT", 15637),
     serverReadyTimeoutMs: optionalInt("GAME_SERVER_READY_TIMEOUT_MS", 600_000),
   },

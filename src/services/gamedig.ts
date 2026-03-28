@@ -1,4 +1,5 @@
-import { GameDig } from "gamedig";
+import { GameDig, Type } from "gamedig";
+import { config } from "../config.ts";
 
 export interface ServerStatus {
   online: boolean;
@@ -10,7 +11,7 @@ export interface ServerStatus {
 export async function queryServer(host: string, port: number): Promise<ServerStatus | null> {
   try {
     const result = await GameDig.query({
-      type: "enshrouded",
+      type: config.game.type as Type,
       host,
       port,
     });
