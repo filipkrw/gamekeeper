@@ -85,7 +85,7 @@ The bot updates a DNS A record to point to the server's IP when it starts.
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `GAME_TYPE` | yes | — | GameDig game type identifier. Must be a valid type from the [supported games list](https://github.com/gamedig/node-gamedig/blob/master/GAMES_LIST.md) |
-| `GAME_QUERY_PORT` | no | `15637` | UDP port used to query the game server for player info |
+| `GAME_QUERY_PORT` | yes | — | UDP port the bot queries to check server status and read the player list. Used to detect when the server is ready after `/start`, who is online, and whether to delay or cancel auto-shutdown. Getting this wrong means the bot treats the server as always empty or never ready. Check your game's documentation. |
 | `GAME_SERVER_READY_TIMEOUT_MS` | no | `600000` | How long to wait for the game to become queryable after the server boots (ms) |
 
 ### Tuning

@@ -46,7 +46,7 @@ export const config = Object.freeze({
   },
   game: {
     type: requiredGameType("GAME_TYPE"),
-    queryPort: optionalInt("GAME_QUERY_PORT", 15637),
+    queryPort: parseInt(required("GAME_QUERY_PORT"), 10),
     serverReadyTimeoutMs: optionalInt("GAME_SERVER_READY_TIMEOUT_MS", 600_000),
   },
   idle: {
