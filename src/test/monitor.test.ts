@@ -21,6 +21,7 @@ mock.module("../discord.ts", () => ({
 
 import { monitor } from "../monitor.ts";
 import { commandLock } from "../lock.ts";
+import { msg } from "../messages.ts";
 
 // Access private poll method for controlled testing
 const poll = () => (monitor as any).poll();
@@ -56,7 +57,7 @@ describe("Monitor", () => {
 
       expect(channelMessages).toHaveLength(1);
       expect(channelMessages[0]).toContain("Alice");
-      expect(channelMessages[0]).toContain("dołączył");
+      expect(channelMessages[0]).toBe(msg.playerJoined("Alice"));
     });
 
     test("detects player leave by name", async () => {
@@ -75,7 +76,7 @@ describe("Monitor", () => {
 
       expect(channelMessages).toHaveLength(1);
       expect(channelMessages[0]).toContain("Alice");
-      expect(channelMessages[0]).toContain("opuścił");
+      expect(channelMessages[0]).toBe(msg.playerLeft("Alice"));
     });
 
     test("batches multiple joins into one message", async () => {
@@ -108,8 +109,7 @@ describe("Monitor", () => {
       await poll();
 
       expect(channelMessages).toHaveLength(1);
-      expect(channelMessages[0]).toContain("2 graczy");
-      expect(channelMessages[0]).toContain("dołączyło");
+      expect(channelMessages[0]).toBe(msg.playersJoined(2, 2, 16));
     });
   });
 
@@ -149,7 +149,7 @@ describe("Monitor", () => {
 
       await poll(); // elapsed >= 0 — triggers warning
 
-      expect(channelMessages.some((m) => m.includes("Wyłączam"))).toBe(true);
+      expect(channelMessages).toContain(msg.idleShutdownWarning(0));
       expect(getState().isShuttingDown).toBe(true);
     });
 
@@ -238,7 +238,7 @@ describe("Monitor", () => {
 
       for (let i = 0; i < 100; i++) await poll();
 
-      expect(channelMessages.some((m) => m.includes("nieosiągalny"))).toBe(true);
+      expect(channelMessages).toContain(msg.serverUnreachable);
       expect(hetznerMocks.createSnapshot).toHaveBeenCalled();
     });
   });

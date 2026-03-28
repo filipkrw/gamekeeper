@@ -20,6 +20,7 @@ mock.module("../discord.ts", () => ({
 }));
 
 import { handleStatus } from "../commands/status.ts";
+import { msg } from "../messages.ts";
 
 describe("/status", () => {
   beforeEach(() => {
@@ -33,7 +34,7 @@ describe("/status", () => {
     await handleStatus(interaction as any);
 
     expect(interaction.deferReply).toHaveBeenCalledTimes(1);
-    expect(interaction.editReply).toHaveBeenCalledWith("Serwer jest offline.");
+    expect(interaction.editReply).toHaveBeenCalledWith(msg.serverOffline);
   });
 
   test("server online, game queryable — shows players and uptime", async () => {
@@ -53,10 +54,10 @@ describe("/status", () => {
     const embed = call.embeds[0];
     const fields = embed.data.fields;
 
-    expect(fields.find((f: any) => f.name === "Status").value).toBe("Online");
-    expect(fields.find((f: any) => f.name === "Gracze").value).toBe("2/16");
-    expect(fields.find((f: any) => f.name === "Gracze online").value).toBe("Alice, Bob");
-    expect(fields.find((f: any) => f.name === "Czas działania").value).toBe("2h 0m");
+    expect(fields.find((f: any) => f.name === msg.statusFieldStatus).value).toBe(msg.statusOnline);
+    expect(fields.find((f: any) => f.name === msg.statusFieldPlayers).value).toBe("2/16");
+    expect(fields.find((f: any) => f.name === msg.statusFieldOnlinePlayers).value).toBe("Alice, Bob");
+    expect(fields.find((f: any) => f.name === msg.statusFieldUptime).value).toBe("2h 0m");
   });
 
   test("server online, game not responding — shows Starting...", async () => {
@@ -68,7 +69,7 @@ describe("/status", () => {
 
     const call = interaction.editReply.mock.calls[0]![0] as any;
     const fields = call.embeds[0].data.fields;
-    expect(fields.find((f: any) => f.name === "Status").value).toBe("Uruchamianie...");
+    expect(fields.find((f: any) => f.name === msg.statusFieldStatus).value).toBe(msg.statusStarting);
 
   });
 });

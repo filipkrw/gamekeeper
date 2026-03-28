@@ -23,6 +23,7 @@ mock.module("../discord.ts", () => ({
 import { handleStart } from "../commands/start.ts";
 import { commandLock } from "../lock.ts";
 import { monitor } from "../monitor.ts";
+import { msg } from "../messages.ts";
 
 describe("/start", () => {
   beforeEach(() => {
@@ -57,8 +58,7 @@ describe("/start", () => {
 
     // Final reply contains connection info
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("gotowy");
-    expect(lastReply).toContain("game.example.com");
+    expect(lastReply).toBe(msg.serverReady("game.example.com"));
   });
 
   test("server already exists — replies immediately, no creation", async () => {
@@ -67,7 +67,7 @@ describe("/start", () => {
     const interaction = mockInteraction("start");
     await handleStart(interaction as any);
 
-    expect(interaction.reply).toHaveBeenCalledWith("Serwer już działa.");
+    expect(interaction.reply).toHaveBeenCalledWith(msg.serverAlreadyRunning);
     expect(hetznerMocks.createServer).not.toHaveBeenCalled();
   });
 
@@ -91,7 +91,7 @@ describe("/start", () => {
     await handleStart(interaction as any);
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("zapisu serwera");
+    expect(lastReply).toBe(msg.noSnapshotsFound);
   });
 
   test("DNS failure — falls back to raw IP", async () => {
@@ -122,8 +122,8 @@ describe("/start", () => {
     await handleStart(interaction as any);
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("Nie udało się uruchomić");
-    expect(channelMessages.some((m) => m.includes("Nie udało się uruchomić"))).toBe(true);
+    expect(lastReply).toBe(msg.startFailed("Hetzner create failed"));
+    expect(channelMessages).toContain(msg.startFailed("Hetzner create failed"));
   });
 
   test("releases lock after completion", async () => {

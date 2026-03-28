@@ -23,6 +23,7 @@ mock.module("../discord.ts", () => ({
 import { handleStop, performStop } from "../commands/stop.ts";
 import { commandLock } from "../lock.ts";
 import { monitor } from "../monitor.ts";
+import { msg } from "../messages.ts";
 
 describe("/stop", () => {
   beforeEach(() => {
@@ -57,7 +58,7 @@ describe("/stop", () => {
     expect(hetznerMocks.deleteImage).toHaveBeenCalledWith(4); // 4th snapshot deleted
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("zatrzymany i zapisany");
+    expect(lastReply).toBe(msg.serverStopped);
   });
 
   test("players online — refuses to stop", async () => {
@@ -69,7 +70,7 @@ describe("/stop", () => {
     const interaction = mockInteraction("stop");
     await handleStop(interaction as any);
 
-    expect(interaction.reply.mock.calls[0]![0] as string).toContain("Nie można zatrzymać");
+    expect(interaction.reply.mock.calls[0]![0] as string).toBe(msg.playersOnline(2));
     expect(hetznerMocks.createSnapshot).not.toHaveBeenCalled();
   });
 
@@ -79,7 +80,7 @@ describe("/stop", () => {
     const interaction = mockInteraction("stop");
     await handleStop(interaction as any);
 
-    expect(interaction.reply).toHaveBeenCalledWith("Żaden serwer nie jest uruchomiony.");
+    expect(interaction.reply).toHaveBeenCalledWith(msg.noServerRunning);
     expect(hetznerMocks.createSnapshot).not.toHaveBeenCalled();
   });
 
@@ -122,7 +123,7 @@ describe("/stop", () => {
     expect(hetznerMocks.deleteServer).not.toHaveBeenCalled();
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("zostawiam serwer");
+    expect(lastReply).toBe(msg.snapshotFailed);
   });
 
   test("player joins during snapshot — server kept alive", async () => {
@@ -143,7 +144,7 @@ describe("/stop", () => {
     expect(hetznerMocks.deleteImage).not.toHaveBeenCalled();
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("pozostaje włączony");
+    expect(lastReply).toBe(msg.playerJoinedDuringSnapshot);
   });
 
   test("final query fails — server kept alive", async () => {
@@ -162,7 +163,7 @@ describe("/stop", () => {
     expect(hetznerMocks.deleteImage).not.toHaveBeenCalled();
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("pozostaje włączony");
+    expect(lastReply).toBe(msg.playerJoinedDuringSnapshot);
   });
 
   test("player joins during snapshot — monitor keeps running", async () => {
@@ -226,6 +227,6 @@ describe("performStop (auto-shutdown variant)", () => {
 
     expect(hetznerMocks.createSnapshot).toHaveBeenCalledTimes(1);
     expect(hetznerMocks.deleteServer).toHaveBeenCalledWith(12345);
-    expect(messages.some((m) => m.includes("zatrzymany i zapisany"))).toBe(true);
+    expect(messages).toContain(msg.serverStopped);
   });
 });
