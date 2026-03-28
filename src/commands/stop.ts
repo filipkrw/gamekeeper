@@ -83,6 +83,12 @@ export async function performStop(
   const gameStatus = await queryServer(serverIp, config.game.queryPort).catch(() => null);
   if (gameStatus && gameStatus.playerCount > 0) {
     await reply(msg.playerJoinedDuringSnapshot);
+    try {
+      await deleteImage(snapshotResult!.imageId);
+      log.info("Deleted snapshot taken during aborted stop", { imageId: snapshotResult!.imageId });
+    } catch (error) {
+      log.warn("Failed to delete snapshot from aborted stop", { imageId: snapshotResult!.imageId, error: String(error) });
+    }
     return false;
   }
 
