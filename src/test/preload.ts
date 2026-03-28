@@ -7,9 +7,9 @@ Bun.env.HETZNER_SSH_KEY_NAME = "test-key";
 Bun.env.CLOUDFLARE_API_TOKEN = "test-cf-token";
 Bun.env.CLOUDFLARE_ZONE_ID = "test-zone";
 Bun.env.CLOUDFLARE_RECORD_ID = "test-record";
-Bun.env.CLOUDFLARE_SUBDOMAIN = "enshrouded.example.com";
+Bun.env.CLOUDFLARE_DOMAIN = "enshrouded.example.com";
 Bun.env.IDLE_CHECK_INTERVAL_MS = "100";
-Bun.env.IDLE_THRESHOLD_CHECKS = "3";
+Bun.env.IDLE_TIMEOUT_MS = "0";
 Bun.env.SHUTDOWN_GRACE_PERIOD_MS = "100";
 
 // Mock Bun.sleep to resolve immediately in tests

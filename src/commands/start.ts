@@ -48,7 +48,7 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
     log.info(`Server running`, { ip });
 
     // Update DNS
-    let hostname = config.cloudflare.subdomain;
+    let hostname = config.cloudflare.domain;
     try {
       await updateDnsRecord(ip);
     } catch (error) {

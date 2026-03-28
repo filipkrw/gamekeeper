@@ -25,7 +25,7 @@ import { commandLock } from "../lock.ts";
 // Access private poll method for controlled testing
 const poll = () => (monitor as any).poll();
 const getState = () => ({
-  idleCount: (monitor as any).idleCount as number,
+  idleStartedAt: (monitor as any).idleStartedAt as number | null,
   failCount: (monitor as any).failCount as number,
   isShuttingDown: (monitor as any).isShuttingDown as boolean,
   previousPlayers: (monitor as any).previousPlayers as Set<string>,
@@ -114,44 +114,40 @@ describe("Monitor", () => {
   });
 
   describe("idle shutdown", () => {
-    test("increments idle count when 0 players", async () => {
+    test("records idle start time when 0 players", async () => {
       gamedigMocks.queryServer.mockImplementation(() =>
         Promise.resolve(createMockGameStatus({ players: [], playerCount: 0 }))
       );
 
+      expect(getState().idleStartedAt).toBeNull();
       await poll();
-      expect(getState().idleCount).toBe(1);
-
-      await poll();
-      expect(getState().idleCount).toBe(2);
+      expect(getState().idleStartedAt).not.toBeNull();
     });
 
-    test("resets idle count when players present", async () => {
+    test("clears idle start when players present", async () => {
       gamedigMocks.queryServer.mockImplementation(() =>
         Promise.resolve(createMockGameStatus({ players: [], playerCount: 0 }))
       );
       await poll();
-      await poll();
-      expect(getState().idleCount).toBe(2);
+      expect(getState().idleStartedAt).not.toBeNull();
 
       gamedigMocks.queryServer.mockImplementation(() =>
         Promise.resolve(createMockGameStatus({ players: ["Alice"], playerCount: 1 }))
       );
       await poll();
-      expect(getState().idleCount).toBe(0);
+      expect(getState().idleStartedAt).toBeNull();
     });
 
-    test("posts warning after threshold reached", async () => {
+    test("posts warning after timeout reached", async () => {
       gamedigMocks.queryServer.mockImplementation(() =>
         Promise.resolve(createMockGameStatus({ players: [], playerCount: 0 }))
       );
 
-      // thresholdChecks is set to 3 in test config
-      await poll(); // 1
-      await poll(); // 2
+      // IDLE_TIMEOUT_MS=0 in test config — triggers on second poll (elapsed >= 0)
+      await poll(); // sets idleStartedAt
       channelMessages.length = 0;
 
-      await poll(); // 3 — triggers warning
+      await poll(); // elapsed >= 0 — triggers warning
 
       expect(channelMessages.some((m) => m.includes("Shutting down"))).toBe(true);
       expect(getState().isShuttingDown).toBe(true);
@@ -170,8 +166,8 @@ describe("Monitor", () => {
         Promise.resolve(createMockGameStatus({ players: [], playerCount: 0 }))
       );
 
-      // Trigger shutdown warning
-      for (let i = 0; i < 3; i++) await poll();
+      // Trigger shutdown warning (first poll sets idleStartedAt, second triggers with IDLE_TIMEOUT_MS=0)
+      for (let i = 0; i < 2; i++) await poll();
       expect(getState().isShuttingDown).toBe(true);
 
       // Player joins before grace period expires
@@ -202,8 +198,8 @@ describe("Monitor", () => {
         Promise.resolve(createMockGameStatus({ players: [], playerCount: 0 }))
       );
 
-      // Trigger shutdown warning
-      for (let i = 0; i < 3; i++) await poll();
+      // Trigger shutdown warning (first poll sets idleStartedAt, second triggers with IDLE_TIMEOUT_MS=0)
+      for (let i = 0; i < 2; i++) await poll();
 
       // Grace period expires, still no players
       if (graceCallback) await graceCallback();

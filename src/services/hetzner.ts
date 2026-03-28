@@ -61,7 +61,6 @@ export async function findServer(): Promise<HetznerServer | null> {
 
 export async function createServer(imageId: number): Promise<HetznerServer> {
   const sshKeyId = await findSSHKey(config.hetzner.sshKeyName);
-  const firewallId = await findFirewall(config.hetzner.firewallName);
 
   const data = await hetznerFetch<{ server: HetznerServer }>("/servers", {
     method: "POST",
@@ -71,7 +70,6 @@ export async function createServer(imageId: number): Promise<HetznerServer> {
       location: config.hetzner.location,
       image: imageId,
       ssh_keys: [sshKeyId],
-      firewalls: [{ firewall: firewallId }],
       start_after_create: true,
     }),
   });
@@ -157,11 +155,3 @@ async function findSSHKey(name: string): Promise<number> {
   return key.id;
 }
 
-async function findFirewall(name: string): Promise<number> {
-  const data = await hetznerFetch<{ firewalls: { id: number; name: string }[] }>(
-    `/firewalls?name=${name}`
-  );
-  const fw = data.firewalls[0];
-  if (!fw) throw new Error(`Firewall not found: ${name}`);
-  return fw.id;
-}

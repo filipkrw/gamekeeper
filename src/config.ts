@@ -28,20 +28,19 @@ export const config = Object.freeze({
     serverType: optional("HETZNER_SERVER_TYPE", "ccx23"),
     location: optional("HETZNER_LOCATION", "fsn1"),
     sshKeyName: required("HETZNER_SSH_KEY_NAME"),
-    firewallName: optional("HETZNER_FIREWALL_NAME", "enshrouded-fw"),
   },
   cloudflare: {
     apiToken: required("CLOUDFLARE_API_TOKEN"),
     zoneId: required("CLOUDFLARE_ZONE_ID"),
     recordId: required("CLOUDFLARE_RECORD_ID"),
-    subdomain: required("CLOUDFLARE_SUBDOMAIN"),
+    domain: required("CLOUDFLARE_DOMAIN"),
   },
   game: {
     queryPort: optionalInt("GAME_QUERY_PORT", 15637),
   },
   idle: {
     checkIntervalMs: optionalInt("IDLE_CHECK_INTERVAL_MS", 30_000),
-    thresholdChecks: optionalInt("IDLE_THRESHOLD_CHECKS", 30),
+    timeoutMs: optionalInt("IDLE_TIMEOUT_MS", 900_000),
     gracePeriodMs: optionalInt("SHUTDOWN_GRACE_PERIOD_MS", 120_000),
   },
   snapshots: {

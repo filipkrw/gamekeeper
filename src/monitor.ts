@@ -8,7 +8,7 @@ import { log } from "./logger.ts";
 
 class ServerMonitor {
   private timer: ReturnType<typeof setInterval> | null = null;
-  private idleCount = 0;
+  private idleStartedAt: number | null = null;
   private failCount = 0;
   private previousPlayers = new Set<string>();
   private previousCount = 0;
@@ -39,7 +39,7 @@ class ServerMonitor {
   }
 
   private reset(): void {
-    this.idleCount = 0;
+    this.idleStartedAt = null;
     this.failCount = 0;
     this.previousPlayers = new Set();
     this.previousCount = 0;
@@ -69,13 +69,11 @@ class ServerMonitor {
 
       // Idle tracking
       if (status.playerCount === 0) {
-        this.idleCount++;
-
-        if (this.idleCount >= config.idle.thresholdChecks && !this.isShuttingDown) {
+        if (this.idleStartedAt === null) {
+          this.idleStartedAt = Date.now();
+        } else if (!this.isShuttingDown && Date.now() - this.idleStartedAt >= config.idle.timeoutMs) {
           this.isShuttingDown = true;
-          const minutes = Math.round(
-            (config.idle.thresholdChecks * config.idle.checkIntervalMs) / 60_000
-          );
+          const minutes = Math.round(config.idle.timeoutMs / 60_000);
           await sendToChannel(
             `No players detected for ${minutes} minutes. Shutting down in 2 minutes...`
           );
@@ -87,7 +85,7 @@ class ServerMonitor {
             const finalStatus = await queryServer(this.host, this.port);
             if (finalStatus && finalStatus.playerCount > 0) {
               this.isShuttingDown = false;
-              this.idleCount = 0;
+              this.idleStartedAt = null;
               await sendToChannel("Player joined — shutdown cancelled.");
               return;
             }
@@ -101,7 +99,7 @@ class ServerMonitor {
           this.isShuttingDown = false;
           // Don't post cancellation here — the setTimeout callback will handle it
         }
-        this.idleCount = 0;
+        this.idleStartedAt = null;
       }
     } catch (error) {
       log.error("Monitor poll error", { error: String(error) });
