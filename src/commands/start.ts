@@ -63,6 +63,7 @@ export async function handleStart(
 
     // Wait for game server to be queryable
     await interaction.editReply(msg.waitingForGame);
+    log.info("Waiting for game server", { ip, port: config.game.queryPort, timeoutMs: config.game.serverReadyTimeoutMs });
     await waitForGameReady(ip, config.game.queryPort, config.game.serverReadyTimeoutMs);
     await interaction.editReply(msg.serverReady(hostname));
   } catch (error) {
