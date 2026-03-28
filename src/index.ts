@@ -40,7 +40,7 @@ client.once("clientReady", async () => {
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  log.info("command received", {
+  log.info("Command received", {
     command: interaction.commandName,
     user: interaction.user.tag,
   });
