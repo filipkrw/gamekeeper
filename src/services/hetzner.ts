@@ -113,29 +113,14 @@ export async function deleteImage(id: number): Promise<void> {
 
 // --- Actions ---
 
-export async function waitForAction(
-  serverId: number,
-  actionId: number,
-  timeoutMs = 600_000
-): Promise<void> {
+export async function waitForAction(actionId: number, timeoutMs = 600_000): Promise<void> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
-    try {
-      const data = await hetznerFetch<{ action: HetznerAction }>(
-        `/servers/${serverId}/actions/${actionId}`
-      );
-      if (data.action.status === "success") return;
-      if (data.action.status === "error") {
-        throw new Error(`Action ${actionId} failed: ${JSON.stringify(data.action.error)}`);
-      }
-    } catch (error) {
-      if (String(error).includes("404")) {
-        // Action not yet available — retry
-      } else {
-        throw error;
-      }
+    const data = await hetznerFetch<{ action: HetznerAction }>(`/actions/${actionId}`);
+    if (data.action.status === "success") return;
+    if (data.action.status === "error") {
+      throw new Error(`Action ${actionId} failed: ${JSON.stringify(data.action.error)}`);
     }
-
     await Bun.sleep(5_000);
   }
   throw new Error(`Action ${actionId} timed out after ${timeoutMs}ms`);

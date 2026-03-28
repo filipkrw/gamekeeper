@@ -73,9 +73,7 @@ export const hetznerMocks = {
   createSnapshot: mock<
     (serverId: number) => Promise<{ imageId: number; actionId: number }>
   >(() => Promise.resolve({ imageId: 100, actionId: 200 })),
-  waitForAction: mock<(serverId: number, actionId: number) => Promise<void>>(() =>
-    Promise.resolve()
-  ),
+  waitForAction: mock<(actionId: number) => Promise<void>>(() => Promise.resolve()),
   waitForServerRunning: mock<(serverId: number) => Promise<void>>(() => Promise.resolve()),
   listSnapshots: mock<() => Promise<HetznerImage[]>>(() =>
     Promise.resolve([createMockSnapshot()])

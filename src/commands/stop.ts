@@ -56,7 +56,7 @@ export async function performStop(
     try {
       await reply("Creating snapshot...");
       snapshotResult = await createSnapshot(serverId);
-      await waitForAction(serverId, snapshotResult.actionId);
+      await waitForAction(snapshotResult.actionId);
       log.info("Snapshot completed", { imageId: snapshotResult.imageId });
       break;
     } catch (error) {
