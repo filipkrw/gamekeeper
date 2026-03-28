@@ -37,6 +37,10 @@ export const msg = {
   statusOnline: "Online",
   statusStarting: "Uruchamianie...",
   statusFailed: "Nie udało się pobrać statusu serwera.",
+  statusFieldStatus: "Status",
+  statusFieldUptime: "Czas działania",
+  statusFieldPlayers: "Gracze",
+  statusFieldOnlinePlayers: "Gracze online",
 
   // --- Monitor ---
   serverUnreachable: "Serwer jest nieosiągalny. Wyłączam...",

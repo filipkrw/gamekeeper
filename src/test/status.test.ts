@@ -54,9 +54,9 @@ describe("/status", () => {
     const fields = embed.data.fields;
 
     expect(fields.find((f: any) => f.name === "Status").value).toBe("Online");
-    expect(fields.find((f: any) => f.name === "Players").value).toBe("2/16");
-    expect(fields.find((f: any) => f.name === "Online Players").value).toBe("Alice, Bob");
-    expect(fields.find((f: any) => f.name === "Uptime").value).toBe("2h 0m");
+    expect(fields.find((f: any) => f.name === "Gracze").value).toBe("2/16");
+    expect(fields.find((f: any) => f.name === "Gracze online").value).toBe("Alice, Bob");
+    expect(fields.find((f: any) => f.name === "Czas działania").value).toBe("2h 0m");
   });
 
   test("server online, game not responding — shows Starting...", async () => {
@@ -69,5 +69,6 @@ describe("/status", () => {
     const call = interaction.editReply.mock.calls[0]![0] as any;
     const fields = call.embeds[0].data.fields;
     expect(fields.find((f: any) => f.name === "Status").value).toBe("Uruchamianie...");
+
   });
 });

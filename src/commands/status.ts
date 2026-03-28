@@ -31,10 +31,10 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
       .setTitle(msg.statusTitle)
       .setColor(status?.online ? 0x57f287 : 0xfee75c)
       .addFields(
-        { name: "Status", value: status?.online ? msg.statusOnline : msg.statusStarting, inline: true },
-        { name: "Uptime", value: uptimeStr, inline: true },
+        { name: msg.statusFieldStatus, value: status?.online ? msg.statusOnline : msg.statusStarting, inline: true },
+        { name: msg.statusFieldUptime, value: uptimeStr, inline: true },
         {
-          name: "Players",
+          name: msg.statusFieldPlayers,
           value: status
             ? `${status.playerCount}/${status.maxPlayers}`
             : "-",
@@ -44,7 +44,7 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
 
     if (status && status.players.length > 0) {
       embed.addFields({
-        name: "Online Players",
+        name: msg.statusFieldOnlinePlayers,
         value: status.players.join(", "),
       });
     }
