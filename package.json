@@ -1,5 +1,5 @@
 {
-  "name": "enshrouded",
+  "name": "sleeper-agent",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
@@ -8,7 +8,8 @@
     "start": "bun src/index.ts",
     "register": "bun src/commands/register.ts",
     "cf-zones": "bun src/scripts/cloudflare-zones.ts",
-    "cf-records": "bun src/scripts/cloudflare-records.ts"
+    "cf-records": "bun src/scripts/cloudflare-records.ts",
+    "deploy": "docker compose up -d --build"
   },
   "devDependencies": {
     "@types/bun": "latest"
