@@ -77,9 +77,10 @@ export async function performStop(
     }
   }
 
-  // Final player check before deleting
+  // Final player check before deleting.
+  // Treat a failed query (null) as "uncertain" — abort rather than risk deleting with someone on.
   const finalStatus = await queryServer(serverIp, config.game.queryPort).catch(() => null);
-  if (finalStatus && finalStatus.playerCount > 0) {
+  if (!finalStatus || finalStatus.playerCount > 0) {
     await reply(msg.playerJoinedDuringSnapshot);
     try {
       await deleteImage(snapshotResult!.imageId);

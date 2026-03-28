@@ -146,6 +146,25 @@ describe("/stop", () => {
     expect(lastReply).toContain("pozostaje włączony");
   });
 
+  test("final query fails — server kept alive, snapshot deleted", async () => {
+    hetznerMocks.findServer.mockImplementation(() => Promise.resolve(createMockServer()));
+    let queryCount = 0;
+    gamedigMocks.queryServer.mockImplementation(() => {
+      queryCount++;
+      if (queryCount === 1) return Promise.resolve(createMockGameStatus({ playerCount: 0 }));
+      return Promise.resolve(null); // final check fails
+    });
+
+    const interaction = mockInteraction("stop");
+    await handleStop(interaction as any);
+
+    expect(hetznerMocks.deleteServer).not.toHaveBeenCalled();
+    expect(hetznerMocks.deleteImage).toHaveBeenCalledWith(100);
+
+    const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
+    expect(lastReply).toContain("pozostaje włączony");
+  });
+
   test("player joins during snapshot — monitor keeps running", async () => {
     hetznerMocks.findServer.mockImplementation(() => Promise.resolve(createMockServer()));
     let queryCount = 0;
