@@ -60,4 +60,4 @@ Monitor tests call the private `poll()` method directly rather than using fake t
 
 ## Environment
 
-All config is via environment variables (Bun loads `.env` automatically). See `.env.example` for the full list. Required vars: `DISCORD_TOKEN`, `DISCORD_GUILD_ID`, `DISCORD_CHANNEL_ID`, `HETZNER_API_TOKEN`, `HETZNER_SSH_KEY_NAME`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_RECORD_ID`, `CLOUDFLARE_SUBDOMAIN`.
+All config is via environment variables (Bun loads `.env` automatically). See `.env.example` for the full list. Required vars: `DISCORD_TOKEN`, `DISCORD_GUILD_ID`, `DISCORD_CHANNEL_ID`, `HETZNER_API_TOKEN`, `HETZNER_SSH_KEY_NAMES`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_RECORD_ID`, `CLOUDFLARE_SUBDOMAIN`.

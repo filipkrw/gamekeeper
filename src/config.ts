@@ -27,7 +27,7 @@ export const config = Object.freeze({
     serverName: optional("HETZNER_SERVER_NAME", "enshrouded"),
     serverType: optional("HETZNER_SERVER_TYPE", "ccx23"),
     location: optional("HETZNER_LOCATION", "fsn1"),
-    sshKeyName: required("HETZNER_SSH_KEY_NAME"),
+    sshKeyNames: required("HETZNER_SSH_KEY_NAMES").split(",").map((s) => s.trim()),
   },
   cloudflare: {
     apiToken: required("CLOUDFLARE_API_TOKEN"),

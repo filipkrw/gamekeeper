@@ -91,7 +91,7 @@ describe("/start", () => {
     await handleStart(interaction as any);
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("zapisu gry");
+    expect(lastReply).toContain("zapisu serwera");
   });
 
   test("DNS failure — falls back to raw IP", async () => {

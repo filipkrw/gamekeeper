@@ -60,7 +60,7 @@ export async function findServer(): Promise<HetznerServer | null> {
 }
 
 export async function createServer(imageId: number): Promise<HetznerServer> {
-  const sshKeyId = await findSSHKey(config.hetzner.sshKeyName);
+  const sshKeyIds = await Promise.all(config.hetzner.sshKeyNames.map(findSSHKey));
 
   const data = await hetznerFetch<{ server: HetznerServer }>("/servers", {
     method: "POST",
@@ -69,7 +69,7 @@ export async function createServer(imageId: number): Promise<HetznerServer> {
       server_type: config.hetzner.serverType,
       location: config.hetzner.location,
       image: imageId,
-      ssh_keys: [sshKeyId],
+      ssh_keys: sshKeyIds,
       start_after_create: true,
     }),
   });
