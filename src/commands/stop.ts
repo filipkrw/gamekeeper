@@ -59,8 +59,6 @@ export async function performStop(
   serverIp: string,
   reply: (msg: string) => Promise<unknown>
 ): Promise<boolean> {
-  monitor.stop();
-
   // Snapshot with one retry
   let snapshotResult: { imageId: number; actionId: number } | null = null;
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -79,9 +77,9 @@ export async function performStop(
     }
   }
 
-  // Check if a player joined during the snapshot
-  const gameStatus = await queryServer(serverIp, config.game.queryPort).catch(() => null);
-  if (gameStatus && gameStatus.playerCount > 0) {
+  // Final player check before deleting
+  const finalStatus = await queryServer(serverIp, config.game.queryPort).catch(() => null);
+  if (finalStatus && finalStatus.playerCount > 0) {
     await reply(msg.playerJoinedDuringSnapshot);
     try {
       await deleteImage(snapshotResult!.imageId);
@@ -93,6 +91,7 @@ export async function performStop(
   }
 
   // Delete server
+  monitor.stop();
   await reply(msg.deletingServer);
   await deleteServer(serverId);
 
