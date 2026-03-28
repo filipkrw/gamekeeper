@@ -1,4 +1,4 @@
-# Sleeper Agent
+# Gamekeeper
 
 A Discord bot that manages an on-demand game server on Hetzner Cloud. Players use `/start`, `/stop`, and `/status` slash commands to control the server. The server is created from a snapshot when needed and automatically shut down after a configurable idle period.
 
