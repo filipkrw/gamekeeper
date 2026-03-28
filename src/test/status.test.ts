@@ -36,7 +36,7 @@ describe("/status", () => {
     expect(interaction.editReply).toHaveBeenCalledWith("Server is offline.");
   });
 
-  test("server online, game queryable — shows players and cost", async () => {
+  test("server online, game queryable — shows players and uptime", async () => {
     const server = createMockServer({
       created: new Date(Date.now() - 7_200_000).toISOString(), // 2 hours ago
     });
@@ -56,10 +56,7 @@ describe("/status", () => {
     expect(fields.find((f: any) => f.name === "Status").value).toBe("Online");
     expect(fields.find((f: any) => f.name === "Players").value).toBe("2/16");
     expect(fields.find((f: any) => f.name === "Online Players").value).toBe("Alice, Bob");
-
-    // Cost for 2 hours at CCX23 (€0.05/hr) ≈ €0.10
-    const costField = fields.find((f: any) => f.name === "Session Cost");
-    expect(costField.value).toMatch(/€0\.1/);
+    expect(fields.find((f: any) => f.name === "Uptime").value).toBe("2h 0m");
   });
 
   test("server online, game not responding — shows Starting...", async () => {
@@ -72,24 +69,5 @@ describe("/status", () => {
     const call = interaction.editReply.mock.calls[0]![0] as any;
     const fields = call.embeds[0].data.fields;
     expect(fields.find((f: any) => f.name === "Status").value).toBe("Starting...");
-  });
-
-  test("CCX33 cost uses higher rate", async () => {
-    const server = createMockServer({
-      server_type: { name: "ccx33" },
-      created: new Date(Date.now() - 3_600_000).toISOString(), // 1 hour
-    });
-    hetznerMocks.findServer.mockImplementation(() => Promise.resolve(server));
-    gamedigMocks.queryServer.mockImplementation(() =>
-      Promise.resolve(createMockGameStatus())
-    );
-
-    const interaction = mockInteraction("status");
-    await handleStatus(interaction as any);
-
-    const call = interaction.editReply.mock.calls[0]![0] as any;
-    const costField = call.embeds[0].data.fields.find((f: any) => f.name === "Session Cost");
-    // 1 hour at €0.10/hr = €0.10
-    expect(costField.value).toMatch(/€0\.1/);
   });
 });

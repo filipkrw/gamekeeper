@@ -1,7 +1,7 @@
 import { type ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { findServer } from "../services/hetzner.ts";
 import { queryServer } from "../services/gamedig.ts";
-import { config, SERVER_COSTS } from "../config.ts";
+import { config } from "../config.ts";
 import { log } from "../logger.ts";
 
 export async function handleStatus(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -22,11 +22,7 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
 
     const created = new Date(server.created);
     const uptimeMs = Date.now() - created.getTime();
-    const uptimeHours = uptimeMs / 3_600_000;
-    const hourlyRate = SERVER_COSTS[server.server_type.name] ?? 0.05;
-    const cost = (uptimeHours * hourlyRate).toFixed(2);
-
-    const hours = Math.floor(uptimeHours);
+    const hours = Math.floor(uptimeMs / 3_600_000);
     const minutes = Math.floor((uptimeMs % 3_600_000) / 60_000);
     const uptimeStr = `${hours}h ${minutes}m`;
 
@@ -43,8 +39,7 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
             ? `${status.playerCount}/${status.maxPlayers}`
             : "Unknown",
           inline: true,
-        },
-        { name: "Session Cost", value: `€${cost}`, inline: true }
+        }
       );
 
     if (status && status.players.length > 0) {

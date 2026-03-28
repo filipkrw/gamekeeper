@@ -37,6 +37,7 @@ export const config = Object.freeze({
   },
   game: {
     queryPort: optionalInt("GAME_QUERY_PORT", 15637),
+    serverReadyTimeoutMs: optionalInt("GAME_SERVER_READY_TIMEOUT_MS", 600_000),
   },
   idle: {
     checkIntervalMs: optionalInt("IDLE_CHECK_INTERVAL_MS", 30_000),
@@ -47,9 +48,3 @@ export const config = Object.freeze({
     maxToKeep: optionalInt("MAX_SNAPSHOTS_TO_KEEP", 3),
   },
 });
-
-// Hourly cost by server type
-export const SERVER_COSTS: Record<string, number> = {
-  ccx23: 0.05,
-  ccx33: 0.10,
-};
