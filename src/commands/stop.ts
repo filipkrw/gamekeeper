@@ -9,7 +9,6 @@ import {
 } from "../services/hetzner.ts";
 import { config } from "../config.ts";
 import { commandLock } from "../lock.ts";
-import { sendToChannel } from "../discord.ts";
 import { monitor } from "../monitor.ts";
 import { log } from "../logger.ts";
 
@@ -63,9 +62,7 @@ export async function performStop(
     } catch (error) {
       log.error(`Snapshot attempt ${attempt} failed`, { error: String(error) });
       if (attempt === 2) {
-        const msg = "Snapshot failed after 2 attempts. Server NOT deleted to prevent data loss.";
-        await reply(msg);
-        await sendToChannel(msg);
+        await reply("Snapshot failed after 2 attempts. Server NOT deleted to prevent data loss.");
         return;
       }
     }

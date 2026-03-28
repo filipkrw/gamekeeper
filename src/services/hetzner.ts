@@ -120,13 +120,20 @@ export async function waitForAction(
 ): Promise<void> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
-    const data = await hetznerFetch<{ action: HetznerAction }>(
-      `/servers/${serverId}/actions/${actionId}`
-    );
-
-    if (data.action.status === "success") return;
-    if (data.action.status === "error") {
-      throw new Error(`Action ${actionId} failed: ${JSON.stringify(data.action.error)}`);
+    try {
+      const data = await hetznerFetch<{ action: HetznerAction }>(
+        `/servers/${serverId}/actions/${actionId}`
+      );
+      if (data.action.status === "success") return;
+      if (data.action.status === "error") {
+        throw new Error(`Action ${actionId} failed: ${JSON.stringify(data.action.error)}`);
+      }
+    } catch (error) {
+      if (String(error).includes("404")) {
+        // Action not yet available — retry
+      } else {
+        throw error;
+      }
     }
 
     await Bun.sleep(5_000);
@@ -134,7 +141,7 @@ export async function waitForAction(
   throw new Error(`Action ${actionId} timed out after ${timeoutMs}ms`);
 }
 
-export async function waitForServerRunning(serverId: number, timeoutMs = 120_000): Promise<void> {
+export async function waitForServerRunning(serverId: number, timeoutMs = config.game.serverReadyTimeoutMs): Promise<void> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     const data = await hetznerFetch<{ server: HetznerServer }>(`/servers/${serverId}`);
