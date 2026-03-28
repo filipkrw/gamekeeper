@@ -1,8 +1,8 @@
-const token = process.env.CLOUDFLARE_API_TOKEN;
-const zoneId = process.env.CLOUDFLARE_ZONE_ID;
+const token = Bun.env.CLOUDFLARE_API_TOKEN;
+const zoneId = Bun.env.CLOUDFLARE_ZONE_ID;
 
 if (!token || !zoneId) {
-  console.error("Usage: CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ZONE_ID=... bun run cf-records");
+  console.error("Set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID in .env and run: bun run cf-records");
   process.exit(1);
 }
 
