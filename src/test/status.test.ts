@@ -33,7 +33,7 @@ describe("/status", () => {
     await handleStatus(interaction as any);
 
     expect(interaction.deferReply).toHaveBeenCalledTimes(1);
-    expect(interaction.editReply).toHaveBeenCalledWith("Server is offline.");
+    expect(interaction.editReply).toHaveBeenCalledWith("Serwer jest offline.");
   });
 
   test("server online, game queryable — shows players and uptime", async () => {
@@ -68,6 +68,6 @@ describe("/status", () => {
 
     const call = interaction.editReply.mock.calls[0]![0] as any;
     const fields = call.embeds[0].data.fields;
-    expect(fields.find((f: any) => f.name === "Status").value).toBe("Starting...");
+    expect(fields.find((f: any) => f.name === "Status").value).toBe("Uruchamianie...");
   });
 });

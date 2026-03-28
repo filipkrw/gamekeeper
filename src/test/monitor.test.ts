@@ -56,7 +56,7 @@ describe("Monitor", () => {
 
       expect(channelMessages).toHaveLength(1);
       expect(channelMessages[0]).toContain("Alice");
-      expect(channelMessages[0]).toContain("joined");
+      expect(channelMessages[0]).toContain("dołączył");
     });
 
     test("detects player leave by name", async () => {
@@ -75,7 +75,7 @@ describe("Monitor", () => {
 
       expect(channelMessages).toHaveLength(1);
       expect(channelMessages[0]).toContain("Alice");
-      expect(channelMessages[0]).toContain("left");
+      expect(channelMessages[0]).toContain("opuścił");
     });
 
     test("batches multiple joins into one message", async () => {
@@ -108,8 +108,8 @@ describe("Monitor", () => {
       await poll();
 
       expect(channelMessages).toHaveLength(1);
-      expect(channelMessages[0]).toContain("2 players");
-      expect(channelMessages[0]).toContain("joined");
+      expect(channelMessages[0]).toContain("2 graczy");
+      expect(channelMessages[0]).toContain("dołączyło");
     });
   });
 
@@ -149,7 +149,7 @@ describe("Monitor", () => {
 
       await poll(); // elapsed >= 0 — triggers warning
 
-      expect(channelMessages.some((m) => m.includes("Shutting down"))).toBe(true);
+      expect(channelMessages.some((m) => m.includes("Wyłączam"))).toBe(true);
       expect(getState().isShuttingDown).toBe(true);
     });
 
@@ -238,7 +238,7 @@ describe("Monitor", () => {
 
       for (let i = 0; i < 100; i++) await poll();
 
-      expect(channelMessages.some((m) => m.includes("unreachable"))).toBe(true);
+      expect(channelMessages.some((m) => m.includes("nieosiągalny"))).toBe(true);
       expect(hetznerMocks.createSnapshot).toHaveBeenCalled();
     });
   });

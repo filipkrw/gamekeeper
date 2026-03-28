@@ -57,7 +57,7 @@ describe("/start", () => {
 
     // Final reply contains connection info
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("ready");
+    expect(lastReply).toContain("gotowy");
     expect(lastReply).toContain("enshrouded.example.com");
   });
 
@@ -67,7 +67,7 @@ describe("/start", () => {
     const interaction = mockInteraction("start");
     await handleStart(interaction as any);
 
-    expect(interaction.reply).toHaveBeenCalledWith("Server is already running.");
+    expect(interaction.reply).toHaveBeenCalledWith("Serwer już działa.");
     expect(hetznerMocks.createServer).not.toHaveBeenCalled();
   });
 
@@ -91,7 +91,7 @@ describe("/start", () => {
     await handleStart(interaction as any);
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("No snapshots found");
+    expect(lastReply).toContain("zapisu gry");
   });
 
   test("DNS failure — falls back to raw IP", async () => {
@@ -122,8 +122,8 @@ describe("/start", () => {
     await handleStart(interaction as any);
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("Failed to start server");
-    expect(channelMessages.some((m) => m.includes("Failed to start server"))).toBe(true);
+    expect(lastReply).toContain("Nie udało się uruchomić");
+    expect(channelMessages.some((m) => m.includes("Nie udało się uruchomić"))).toBe(true);
   });
 
   test("releases lock after completion", async () => {

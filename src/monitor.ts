@@ -87,7 +87,6 @@ class ServerMonitor {
               return;
             }
 
-            await sendToChannel(msg.autoStopped);
             await this.triggerAutoStop();
           }, config.idle.gracePeriodMs);
         }
@@ -154,7 +153,8 @@ class ServerMonitor {
     try {
       const server = await findServer();
       if (!server) return;
-      const deleted = await performStop(server.id, server.public_net.ipv4.ip, (msg) => sendToChannel(msg));
+      const statusMsg = await sendToChannel(msg.autoStopped);
+      const deleted = await performStop(server.id, server.public_net.ipv4.ip, (content) => statusMsg.edit(content));
       if (!deleted) {
         this.start(this.host, this.port);
       }

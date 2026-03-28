@@ -91,8 +91,16 @@ export const gamedigMocks = {
   ),
 };
 
+const mockMessage = {
+  edit: mock(async (content: string) => {
+    channelMessages.push(content);
+    return mockMessage;
+  }),
+};
+
 export const sendToChannelMock = mock(async (content: string) => {
   channelMessages.push(content);
+  return mockMessage;
 });
 
 export function resetAllMocks() {
@@ -102,6 +110,7 @@ export function resetAllMocks() {
   for (const fn of Object.values(cloudflareMocks)) fn.mockClear();
   for (const fn of Object.values(gamedigMocks)) fn.mockClear();
   sendToChannelMock.mockClear();
+  mockMessage.edit.mockClear();
 
   // Reset to defaults
   hetznerMocks.findServer.mockImplementation(() => Promise.resolve(null));

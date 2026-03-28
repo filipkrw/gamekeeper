@@ -57,7 +57,7 @@ describe("/stop", () => {
     expect(hetznerMocks.deleteImage).toHaveBeenCalledWith(4); // 4th snapshot deleted
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("stopped and saved");
+    expect(lastReply).toContain("zatrzymany i zapisany");
   });
 
   test("players online — refuses to stop", async () => {
@@ -69,7 +69,7 @@ describe("/stop", () => {
     const interaction = mockInteraction("stop");
     await handleStop(interaction as any);
 
-    expect(interaction.reply.mock.calls[0]![0] as string).toContain("Cannot stop");
+    expect(interaction.reply.mock.calls[0]![0] as string).toContain("Nie można zatrzymać");
     expect(hetznerMocks.createSnapshot).not.toHaveBeenCalled();
   });
 
@@ -79,7 +79,7 @@ describe("/stop", () => {
     const interaction = mockInteraction("stop");
     await handleStop(interaction as any);
 
-    expect(interaction.reply).toHaveBeenCalledWith("No server is running.");
+    expect(interaction.reply).toHaveBeenCalledWith("Żaden serwer nie jest uruchomiony.");
     expect(hetznerMocks.createSnapshot).not.toHaveBeenCalled();
   });
 
@@ -122,7 +122,7 @@ describe("/stop", () => {
     expect(hetznerMocks.deleteServer).not.toHaveBeenCalled();
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("NOT deleted");
+    expect(lastReply).toContain("zostawiam serwer");
   });
 
   test("player joins during snapshot — server kept alive", async () => {
@@ -142,7 +142,7 @@ describe("/stop", () => {
     expect(hetznerMocks.deleteServer).not.toHaveBeenCalled();
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
-    expect(lastReply).toContain("kept alive");
+    expect(lastReply).toContain("pozostaje włączony");
   });
 
   test("releases lock after completion", async () => {
@@ -187,6 +187,6 @@ describe("performStop (auto-shutdown variant)", () => {
 
     expect(hetznerMocks.createSnapshot).toHaveBeenCalledTimes(1);
     expect(hetznerMocks.deleteServer).toHaveBeenCalledWith(12345);
-    expect(messages.some((m) => m.includes("stopped and saved"))).toBe(true);
+    expect(messages.some((m) => m.includes("zatrzymany i zapisany"))).toBe(true);
   });
 });
