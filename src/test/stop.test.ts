@@ -125,7 +125,7 @@ describe("/stop", () => {
     expect(lastReply).toContain("zostawiam serwer");
   });
 
-  test("player joins during snapshot — server kept alive", async () => {
+  test("player joins during snapshot — server kept alive, snapshot deleted", async () => {
     hetznerMocks.findServer.mockImplementation(() => Promise.resolve(createMockServer()));
     // No players before stop, but player joins during snapshot
     let queryCount = 0;
@@ -140,9 +140,29 @@ describe("/stop", () => {
 
     expect(hetznerMocks.createSnapshot).toHaveBeenCalledTimes(1);
     expect(hetznerMocks.deleteServer).not.toHaveBeenCalled();
+    expect(hetznerMocks.deleteImage).toHaveBeenCalledWith(100); // snapshot imageId from default mock
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
     expect(lastReply).toContain("pozostaje włączony");
+  });
+
+  test("player joins during snapshot — monitor keeps running", async () => {
+    hetznerMocks.findServer.mockImplementation(() => Promise.resolve(createMockServer()));
+    let queryCount = 0;
+    gamedigMocks.queryServer.mockImplementation(() => {
+      queryCount++;
+      const playerCount = queryCount === 1 ? 0 : 1;
+      return Promise.resolve(createMockGameStatus({ playerCount }));
+    });
+
+    monitor.start("1.2.3.4", 15637);
+    expect(monitor.isRunning()).toBe(true);
+
+    const interaction = mockInteraction("stop");
+    await handleStop(interaction as any);
+
+    expect(hetznerMocks.deleteServer).not.toHaveBeenCalled();
+    expect(monitor.isRunning()).toBe(true);
   });
 
   test("releases lock after completion", async () => {
