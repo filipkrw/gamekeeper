@@ -35,14 +35,14 @@ export async function handleStop(interaction: ChatInputCommandInteraction): Prom
     }
 
     await interaction.deferReply();
-    await performStop(server.id, ip, (m) => interaction.editReply(m));
+    await performStop(server.id, ip, (msg) => interaction.editReply(msg));
   } catch (error) {
     log.error("Stop command failed", { error: String(error) });
-    const errMsg = msg.stopFailed(error instanceof Error ? error.message : String(error));
+    const errorMsg = msg.stopFailed(error instanceof Error ? error.message : String(error));
     if (interaction.deferred) {
-      await interaction.editReply(errMsg);
+      await interaction.editReply(errorMsg);
     } else {
-      await interaction.reply(errMsg);
+      await interaction.reply(errorMsg);
     }
   } finally {
     commandLock.release();

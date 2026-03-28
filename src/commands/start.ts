@@ -3,7 +3,6 @@ import {
   findServer,
   createServer,
   listSnapshots,
-  waitForServerRunning,
 } from "../services/hetzner.ts";
 import { updateDnsRecord } from "../services/cloudflare.ts";
 import { queryServer } from "../services/gamedig.ts";
@@ -14,7 +13,9 @@ import { monitor } from "../monitor.ts";
 import { msg } from "../messages.ts";
 import { log } from "../logger.ts";
 
-export async function handleStart(interaction: ChatInputCommandInteraction): Promise<void> {
+export async function handleStart(
+  interaction: ChatInputCommandInteraction,
+): Promise<void> {
   if (!commandLock.acquire("start")) {
     await interaction.reply(msg.operationInProgress(commandLock.getOwner()));
     return;
@@ -37,7 +38,10 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
     }
 
     const latestSnapshot = snapshots[0]!;
-    log.info(`Using snapshot`, { id: latestSnapshot.id, created: latestSnapshot.created });
+    log.info(`Using snapshot`, {
+      id: latestSnapshot.id,
+      created: latestSnapshot.created,
+    });
 
     // Create server
     await interaction.editReply(msg.creatingServer);
@@ -54,31 +58,29 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
       await sendToChannel(msg.dnsUpdateFailed(ip));
     }
 
-    // Wait for server to be running
-    await waitForServerRunning(server.id);
-    log.info(`Server running`, { ip });
-
     // Start background monitor
     monitor.start(ip, config.game.queryPort);
 
     // Wait for game server to be queryable
     await interaction.editReply(msg.waitingForGame);
-    const ready = await waitForGameReady(ip, config.game.queryPort);
+    const ready = await waitForGameReady(ip, config.game.queryPort, config.game.serverReadyTimeoutMs);
 
     if (ready) {
       await interaction.editReply(msg.serverReady(hostname));
     } else {
-      await interaction.editReply(msg.serverStarting(hostname));
+      await interaction.editReply(msg.serverStarting());
     }
   } catch (error) {
     log.error("Start command failed", { error: String(error) });
-    const errMsg = msg.startFailed(error instanceof Error ? error.message : String(error));
+    const errorMsg = msg.startFailed(
+      error instanceof Error ? error.message : String(error),
+    );
     if (interaction.deferred) {
-      await interaction.editReply(errMsg);
+      await interaction.editReply(errorMsg);
     } else {
-      await interaction.reply(errMsg);
+      await interaction.reply(errorMsg);
     }
-    await sendToChannel(errMsg);
+    await sendToChannel(errorMsg);
   } finally {
     commandLock.release();
   }
@@ -87,7 +89,7 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
 async function waitForGameReady(
   host: string,
   port: number,
-  timeoutMs = 300_000
+  timeoutMs: number,
 ): Promise<boolean> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {

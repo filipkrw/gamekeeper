@@ -53,7 +53,7 @@ describe("/start", () => {
     expect(interaction.deferReply).toHaveBeenCalledTimes(1);
     expect(hetznerMocks.createServer).toHaveBeenCalledTimes(1);
     expect(cloudflareMocks.updateDnsRecord).toHaveBeenCalledWith("1.2.3.4");
-    expect(hetznerMocks.waitForServerRunning).toHaveBeenCalledTimes(1);
+    expect(hetznerMocks.waitForServerRunning).not.toHaveBeenCalled();
 
     // Final reply contains connection info
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
