@@ -30,6 +30,11 @@ client.once("clientReady", async () => {
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
+  log.info("command received", {
+    command: interaction.commandName,
+    user: interaction.user.tag,
+  });
+
   try {
     switch (interaction.commandName) {
       case "start":

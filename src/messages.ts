@@ -14,7 +14,8 @@ export const msg = {
   creatingServer: "Tworzę serwer...",
   dnsUpdateFailed: (ip: string) =>
     `Aktualizacja domeny nie powiodła się. Połącz się przez IP: \`${ip}\``,
-  waitingForGame: "Serwer utworzony. Wczytuję ostatni zapis...",
+  waitingForGame:
+    "Serwer utworzony. Wczytuję ostatni zapis (to potrwa kilka minut)...",
   serverReady: (hostname: string) =>
     `Serwer gotowy! Połącz się z \`${hostname}\``,
   startFailed: (error: string) => `Nie udało się uruchomić serwera: ${error}`,
