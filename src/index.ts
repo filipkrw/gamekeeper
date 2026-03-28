@@ -7,7 +7,7 @@ import { handleStatus } from "./commands/status.ts";
 import { monitor } from "./monitor.ts";
 import { log } from "./logger.ts";
 
-client.once("ready", async () => {
+client.once("clientReady", async () => {
   log.info(`Logged in as ${client.user?.tag}`);
 
   // Resume monitoring if server is already running (handles bot restarts)
