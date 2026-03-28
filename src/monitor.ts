@@ -161,7 +161,10 @@ class ServerMonitor {
     try {
       const server = await findServer();
       if (!server) return;
-      await performStop(server.id, (msg) => sendToChannel(msg));
+      const deleted = await performStop(server.id, server.public_net.ipv4.ip, (msg) => sendToChannel(msg));
+      if (!deleted) {
+        this.start(this.host, this.port);
+      }
     } catch (error) {
       log.error("Auto-stop failed", { error: String(error) });
       await sendToChannel(

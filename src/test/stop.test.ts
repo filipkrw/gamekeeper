@@ -3,16 +3,18 @@ import {
   mockInteraction,
   resetAllMocks,
   hetznerMocks,
+  gamedigMocks,
   channelMessages,
   sendToChannelMock,
   createMockServer,
   createMockSnapshot,
+  createMockGameStatus,
 } from "./helpers.ts";
 
 // mock.module calls are hoisted to run before any imports
 mock.module("../services/hetzner.ts", () => hetznerMocks);
 mock.module("../services/cloudflare.ts", () => ({ updateDnsRecord: mock() }));
-mock.module("../services/gamedig.ts", () => ({ queryServer: mock() }));
+mock.module("../services/gamedig.ts", () => gamedigMocks);
 mock.module("../discord.ts", () => ({
   client: {},
   sendToChannel: sendToChannelMock,
@@ -56,6 +58,19 @@ describe("/stop", () => {
 
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
     expect(lastReply).toContain("stopped and saved");
+  });
+
+  test("players online — refuses to stop", async () => {
+    hetznerMocks.findServer.mockImplementation(() => Promise.resolve(createMockServer()));
+    gamedigMocks.queryServer.mockImplementation(() =>
+      Promise.resolve(createMockGameStatus({ playerCount: 2 }))
+    );
+
+    const interaction = mockInteraction("stop");
+    await handleStop(interaction as any);
+
+    expect(interaction.reply.mock.calls[0]![0] as string).toContain("Cannot stop");
+    expect(hetznerMocks.createSnapshot).not.toHaveBeenCalled();
   });
 
   test("no server running — replies immediately", async () => {
@@ -110,6 +125,26 @@ describe("/stop", () => {
     expect(lastReply).toContain("NOT deleted");
   });
 
+  test("player joins during snapshot — server kept alive", async () => {
+    hetznerMocks.findServer.mockImplementation(() => Promise.resolve(createMockServer()));
+    // No players before stop, but player joins during snapshot
+    let queryCount = 0;
+    gamedigMocks.queryServer.mockImplementation(() => {
+      queryCount++;
+      const playerCount = queryCount === 1 ? 0 : 1; // empty before, occupied after
+      return Promise.resolve(createMockGameStatus({ playerCount }));
+    });
+
+    const interaction = mockInteraction("stop");
+    await handleStop(interaction as any);
+
+    expect(hetznerMocks.createSnapshot).toHaveBeenCalledTimes(1);
+    expect(hetznerMocks.deleteServer).not.toHaveBeenCalled();
+
+    const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
+    expect(lastReply).toContain("kept alive");
+  });
+
   test("releases lock after completion", async () => {
     hetznerMocks.findServer.mockImplementation(() => Promise.resolve(createMockServer()));
 
@@ -148,7 +183,7 @@ describe("performStop (auto-shutdown variant)", () => {
       messages.push(msg);
     };
 
-    await performStop(12345, reply);
+    await performStop(12345, "1.2.3.4", reply);
 
     expect(hetznerMocks.createSnapshot).toHaveBeenCalledTimes(1);
     expect(hetznerMocks.deleteServer).toHaveBeenCalledWith(12345);

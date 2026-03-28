@@ -7,6 +7,7 @@ import {
   listSnapshots,
   deleteImage,
 } from "../services/hetzner.ts";
+import { queryServer } from "../services/gamedig.ts";
 import { config } from "../config.ts";
 import { commandLock } from "../lock.ts";
 import { monitor } from "../monitor.ts";
@@ -25,8 +26,15 @@ export async function handleStop(interaction: ChatInputCommandInteraction): Prom
       return;
     }
 
+    const ip = server.public_net.ipv4.ip;
+    const gameStatus = await queryServer(ip, config.game.queryPort).catch(() => null);
+    if (gameStatus && gameStatus.playerCount > 0) {
+      await interaction.reply(`Cannot stop: ${gameStatus.playerCount} player(s) are currently online.`);
+      return;
+    }
+
     await interaction.deferReply();
-    await performStop(server.id, (msg) => interaction.editReply(msg));
+    await performStop(server.id, ip, (msg) => interaction.editReply(msg));
   } catch (error) {
     log.error("Stop command failed", { error: String(error) });
     const msg = `Failed to stop server: ${error instanceof Error ? error.message : String(error)}`;
@@ -43,11 +51,13 @@ export async function handleStop(interaction: ChatInputCommandInteraction): Prom
 /**
  * Core stop logic, reused by auto-shutdown.
  * `reply` is a callback to send progress updates — either interaction.editReply or sendToChannel.
+ * Returns true if the server was deleted, false if it was kept alive (player joined during snapshot).
  */
 export async function performStop(
   serverId: number,
+  serverIp: string,
   reply: (msg: string) => Promise<unknown>
-): Promise<void> {
+): Promise<boolean> {
   monitor.stop();
 
   // Snapshot with one retry
@@ -63,9 +73,16 @@ export async function performStop(
       log.error(`Snapshot attempt ${attempt} failed`, { error: String(error) });
       if (attempt === 2) {
         await reply("Snapshot failed after 2 attempts. Server NOT deleted to prevent data loss.");
-        return;
+        return false;
       }
     }
+  }
+
+  // Check if a player joined during the snapshot
+  const gameStatus = await queryServer(serverIp, config.game.queryPort).catch(() => null);
+  if (gameStatus && gameStatus.playerCount > 0) {
+    await reply("Player(s) joined during snapshot. Server kept alive.");
+    return false;
   }
 
   // Delete server
@@ -87,4 +104,5 @@ export async function performStop(
   }
 
   await reply("Server stopped and saved.");
+  return true;
 }

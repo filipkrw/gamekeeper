@@ -118,6 +118,6 @@ export function resetAllMocks() {
   hetznerMocks.deleteImage.mockImplementation(() => Promise.resolve());
   cloudflareMocks.updateDnsRecord.mockImplementation(() => Promise.resolve());
   gamedigMocks.queryServer.mockImplementation(() =>
-    Promise.resolve(createMockGameStatus())
+    Promise.resolve(createMockGameStatus({ players: [], playerCount: 0 }))
   );
 }
