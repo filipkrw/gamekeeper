@@ -4,6 +4,7 @@ import { sendToChannel } from "./discord.ts";
 import { commandLock } from "./lock.ts";
 import { performStop } from "./commands/stop.ts";
 import { config } from "./config.ts";
+import { msg } from "./messages.ts";
 import { log } from "./logger.ts";
 
 class ServerMonitor {
@@ -54,9 +55,7 @@ class ServerMonitor {
         this.failCount++;
         if (this.failCount >= 100) {
           log.warn("100 consecutive query failures, triggering shutdown");
-          await sendToChannel(
-            "Game server has been unreachable for ~50 minutes. Shutting down..."
-          );
+          await sendToChannel(msg.serverUnreachable);
           await this.triggerAutoStop();
         }
         return;
@@ -74,9 +73,7 @@ class ServerMonitor {
         } else if (!this.isShuttingDown && Date.now() - this.idleStartedAt >= config.idle.timeoutMs) {
           this.isShuttingDown = true;
           const minutes = Math.round(config.idle.timeoutMs / 60_000);
-          await sendToChannel(
-            `No players detected for ${minutes} minutes. Shutting down in 2 minutes...`
-          );
+          await sendToChannel(msg.idleShutdownWarning(minutes));
 
           setTimeout(async () => {
             if (!this.isShuttingDown) return;
@@ -86,11 +83,11 @@ class ServerMonitor {
             if (finalStatus && finalStatus.playerCount > 0) {
               this.isShuttingDown = false;
               this.idleStartedAt = null;
-              await sendToChannel("Player joined — shutdown cancelled.");
+              await sendToChannel(msg.shutdownCancelled);
               return;
             }
 
-            await sendToChannel("Server auto-stopped due to inactivity.");
+            await sendToChannel(msg.autoStopped);
             await this.triggerAutoStop();
           }, config.idle.gracePeriodMs);
         }
@@ -120,12 +117,12 @@ class ServerMonitor {
       // Name-based tracking
       for (const name of currentPlayers) {
         if (!this.previousPlayers.has(name)) {
-          messages.push(`🟢 **${name}** joined the server`);
+          messages.push(msg.playerJoined(name));
         }
       }
       for (const name of this.previousPlayers) {
         if (!currentSet.has(name)) {
-          messages.push(`🔴 **${name}** left the server`);
+          messages.push(msg.playerLeft(name));
         }
       }
       this.previousPlayers = currentSet;
@@ -133,13 +130,9 @@ class ServerMonitor {
       // Count-based fallback
       const diff = currentCount - this.previousCount;
       if (diff > 0) {
-        messages.push(
-          `🟢 ${diff === 1 ? "A player" : `${diff} players`} joined (${currentCount}/${maxPlayers})`
-        );
+        messages.push(msg.playersJoined(diff, currentCount, maxPlayers));
       } else if (diff < 0) {
-        messages.push(
-          `🔴 ${diff === -1 ? "A player" : `${Math.abs(diff)} players`} left (${currentCount}/${maxPlayers})`
-        );
+        messages.push(msg.playersLeft(Math.abs(diff), currentCount, maxPlayers));
       }
     }
 
@@ -167,9 +160,7 @@ class ServerMonitor {
       }
     } catch (error) {
       log.error("Auto-stop failed", { error: String(error) });
-      await sendToChannel(
-        `Auto-stop failed: ${error instanceof Error ? error.message : String(error)}`
-      );
+      await sendToChannel(msg.autoStopFailed(error instanceof Error ? error.message : String(error)));
     } finally {
       commandLock.release();
     }

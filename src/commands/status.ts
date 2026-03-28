@@ -2,6 +2,7 @@ import { type ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { findServer } from "../services/hetzner.ts";
 import { queryServer } from "../services/gamedig.ts";
 import { config } from "../config.ts";
+import { msg } from "../messages.ts";
 import { log } from "../logger.ts";
 
 export async function handleStatus(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -11,7 +12,7 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
     const server = await findServer();
 
     if (!server) {
-      await interaction.editReply("Server is offline.");
+      await interaction.editReply(msg.serverOffline);
       return;
     }
 
@@ -27,11 +28,10 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
     const uptimeStr = `${hours}h ${minutes}m`;
 
     const embed = new EmbedBuilder()
-      .setTitle("Enshrouded Server Status")
+      .setTitle(msg.statusTitle)
       .setColor(status?.online ? 0x57f287 : 0xfee75c)
       .addFields(
-        { name: "Status", value: status?.online ? "Online" : "Starting...", inline: true },
-        { name: "Type", value: server.server_type.name.toUpperCase(), inline: true },
+        { name: "Status", value: status?.online ? msg.statusOnline : msg.statusStarting, inline: true },
         { name: "Uptime", value: uptimeStr, inline: true },
         {
           name: "Players",
@@ -52,6 +52,6 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
     log.error("Status command failed", { error: String(error) });
-    await interaction.editReply("Failed to fetch server status.");
+    await interaction.editReply(msg.statusFailed);
   }
 }

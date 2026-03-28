@@ -11,18 +11,19 @@ import { config } from "../config.ts";
 import { commandLock } from "../lock.ts";
 import { sendToChannel } from "../discord.ts";
 import { monitor } from "../monitor.ts";
+import { msg } from "../messages.ts";
 import { log } from "../logger.ts";
 
 export async function handleStart(interaction: ChatInputCommandInteraction): Promise<void> {
   if (!commandLock.acquire("start")) {
-    await interaction.reply(`A \`/${commandLock.getOwner()}\` operation is already in progress.`);
+    await interaction.reply(msg.operationInProgress(commandLock.getOwner()));
     return;
   }
 
   try {
     const existing = await findServer();
     if (existing) {
-      await interaction.reply("Server is already running.");
+      await interaction.reply(msg.serverAlreadyRunning);
       return;
     }
 
@@ -31,7 +32,7 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
     // Find latest snapshot
     const snapshots = await listSnapshots();
     if (snapshots.length === 0) {
-      await interaction.editReply("No snapshots found. Cannot start server.");
+      await interaction.editReply(msg.noSnapshotsFound);
       return;
     }
 
@@ -39,7 +40,7 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
     log.info(`Using snapshot`, { id: latestSnapshot.id, created: latestSnapshot.created });
 
     // Create server
-    await interaction.editReply("Creating server from snapshot...");
+    await interaction.editReply(msg.creatingServer);
     const server = await createServer(latestSnapshot.id);
     const ip = server.public_net.ipv4.ip;
 
@@ -50,7 +51,7 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
     } catch (error) {
       log.error("DNS update failed, using raw IP", { error: String(error) });
       hostname = ip;
-      await sendToChannel(`DNS update failed. Connect using IP: \`${ip}\``);
+      await sendToChannel(msg.dnsUpdateFailed(ip));
     }
 
     // Wait for server to be running
@@ -61,27 +62,23 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
     monitor.start(ip, config.game.queryPort);
 
     // Wait for game server to be queryable
-    await interaction.editReply("Server created. Waiting for game server to start...");
+    await interaction.editReply(msg.waitingForGame);
     const ready = await waitForGameReady(ip, config.game.queryPort);
 
     if (ready) {
-      await interaction.editReply(
-        `Server is ready! Connect to \`${hostname}\``
-      );
+      await interaction.editReply(msg.serverReady(hostname));
     } else {
-      await interaction.editReply(
-        `Server is running but game may still be starting. Connect to \`${hostname}\``
-      );
+      await interaction.editReply(msg.serverStarting(hostname));
     }
   } catch (error) {
     log.error("Start command failed", { error: String(error) });
-    const msg = `Failed to start server: ${error instanceof Error ? error.message : String(error)}`;
+    const errMsg = msg.startFailed(error instanceof Error ? error.message : String(error));
     if (interaction.deferred) {
-      await interaction.editReply(msg);
+      await interaction.editReply(errMsg);
     } else {
-      await interaction.reply(msg);
+      await interaction.reply(errMsg);
     }
-    await sendToChannel(msg);
+    await sendToChannel(errMsg);
   } finally {
     commandLock.release();
   }

@@ -11,37 +11,38 @@ import { queryServer } from "../services/gamedig.ts";
 import { config } from "../config.ts";
 import { commandLock } from "../lock.ts";
 import { monitor } from "../monitor.ts";
+import { msg } from "../messages.ts";
 import { log } from "../logger.ts";
 
 export async function handleStop(interaction: ChatInputCommandInteraction): Promise<void> {
   if (!commandLock.acquire("stop")) {
-    await interaction.reply(`A \`/${commandLock.getOwner()}\` operation is already in progress.`);
+    await interaction.reply(msg.operationInProgress(commandLock.getOwner()));
     return;
   }
 
   try {
     const server = await findServer();
     if (!server) {
-      await interaction.reply("No server is running.");
+      await interaction.reply(msg.noServerRunning);
       return;
     }
 
     const ip = server.public_net.ipv4.ip;
     const gameStatus = await queryServer(ip, config.game.queryPort).catch(() => null);
     if (gameStatus && gameStatus.playerCount > 0) {
-      await interaction.reply(`Cannot stop: ${gameStatus.playerCount} player(s) are currently online.`);
+      await interaction.reply(msg.playersOnline(gameStatus.playerCount));
       return;
     }
 
     await interaction.deferReply();
-    await performStop(server.id, ip, (msg) => interaction.editReply(msg));
+    await performStop(server.id, ip, (m) => interaction.editReply(m));
   } catch (error) {
     log.error("Stop command failed", { error: String(error) });
-    const msg = `Failed to stop server: ${error instanceof Error ? error.message : String(error)}`;
+    const errMsg = msg.stopFailed(error instanceof Error ? error.message : String(error));
     if (interaction.deferred) {
-      await interaction.editReply(msg);
+      await interaction.editReply(errMsg);
     } else {
-      await interaction.reply(msg);
+      await interaction.reply(errMsg);
     }
   } finally {
     commandLock.release();
@@ -64,7 +65,7 @@ export async function performStop(
   let snapshotResult: { imageId: number; actionId: number } | null = null;
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      await reply("Creating snapshot...");
+      await reply(msg.creatingSnapshot);
       snapshotResult = await createSnapshot(serverId);
       await waitForAction(snapshotResult.actionId);
       log.info("Snapshot completed", { imageId: snapshotResult.imageId });
@@ -72,7 +73,7 @@ export async function performStop(
     } catch (error) {
       log.error(`Snapshot attempt ${attempt} failed`, { error: String(error) });
       if (attempt === 2) {
-        await reply("Snapshot failed after 2 attempts. Server NOT deleted to prevent data loss.");
+        await reply(msg.snapshotFailed);
         return false;
       }
     }
@@ -81,12 +82,12 @@ export async function performStop(
   // Check if a player joined during the snapshot
   const gameStatus = await queryServer(serverIp, config.game.queryPort).catch(() => null);
   if (gameStatus && gameStatus.playerCount > 0) {
-    await reply("Player(s) joined during snapshot. Server kept alive.");
+    await reply(msg.playerJoinedDuringSnapshot);
     return false;
   }
 
   // Delete server
-  await reply("Snapshot saved. Deleting server...");
+  await reply(msg.deletingServer);
   await deleteServer(serverId);
 
   // Clean up old snapshots
@@ -103,6 +104,6 @@ export async function performStop(
     log.warn("Failed to clean up old snapshots", { error: String(error) });
   }
 
-  await reply("Server stopped and saved.");
+  await reply(msg.serverStopped);
   return true;
 }
