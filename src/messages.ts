@@ -10,11 +10,11 @@ export const msg = {
   // --- /start ---
   serverAlreadyRunning: "Serwer już działa.",
   noSnapshotsFound:
-    "Nie znaleziono żadnego zapisu gry. Nie można uruchomić serwera.",
-  creatingServer: "Przywracam serwer z ostatniego zapisu...",
+    "Nie znaleziono żadnego zapisu serwera. Nie można uruchomić serwera.",
+  creatingServer: "Tworzę serwer...",
   dnsUpdateFailed: (ip: string) =>
     `Aktualizacja domeny nie powiodła się. Połącz się przez IP: \`${ip}\``,
-  waitingForGame: "Serwer utworzony. Czekam na uruchomienie gry...",
+  waitingForGame: "Serwer utworzony. Wczytuję ostatni zapis...",
   serverReady: (hostname: string) =>
     `Serwer gotowy! Połącz się z \`${hostname}\``,
   startFailed: (error: string) => `Nie udało się uruchomić serwera: ${error}`,
@@ -23,11 +23,11 @@ export const msg = {
   noServerRunning: "Żaden serwer nie jest uruchomiony.",
   playersOnline: (count: number) =>
     `Nie można zatrzymać: na serwerze jest ${count} ${count === 1 ? "gracz" : "graczy"}.`,
-  creatingSnapshot: "Zapisuję grę...",
+  creatingSnapshot: "Zapisuję stan serwera...",
   snapshotFailed: "Zapis nie powiódł się, zostawiam serwer w spokoju.",
   playerJoinedDuringSnapshot:
     "Ktoś dołączył podczas zapisywania. Serwer pozostaje włączony.",
-  deletingServer: "Gra zapisana. Wyłączam serwer...",
+  deletingServer: "Serwer zapisana. Wyłączam...",
   serverStopped: "Serwer zatrzymany i zapisany.",
   stopFailed: (error: string) => `Nie udało się zatrzymać serwera: ${error}`,
 
