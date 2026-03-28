@@ -29,7 +29,7 @@ export type MockInteraction = ReturnType<typeof mockInteraction>;
 export function createMockServer(overrides?: Partial<HetznerServer>): HetznerServer {
   return {
     id: 12345,
-    name: "enshrouded",
+    name: "game-server",
     status: "running",
     public_net: { ipv4: { ip: "1.2.3.4" } },
     server_type: { name: "ccx23" },
@@ -41,7 +41,7 @@ export function createMockServer(overrides?: Partial<HetznerServer>): HetznerSer
 export function createMockSnapshot(overrides?: Partial<HetznerImage>): HetznerImage {
   return {
     id: 99,
-    description: "enshrouded-snapshot",
+    description: "snapshot-12345",
     created: new Date().toISOString(),
     image_size: 30,
     ...overrides,

@@ -9,6 +9,16 @@ import { log } from "./logger.ts";
 
 client.once("clientReady", async () => {
   log.info(`Logged in as ${client.user?.tag}`);
+  log.info("Config", {
+    gameType: config.game.type,
+    queryPort: config.game.queryPort,
+    serverName: config.hetzner.serverName,
+    serverType: config.hetzner.serverType,
+    location: config.hetzner.location,
+    domain: config.cloudflare.domain,
+    idleTimeoutMs: config.idle.timeoutMs,
+    maxSnapshots: config.snapshots.maxToKeep,
+  });
 
   // Resume monitoring if server is already running (handles bot restarts)
   try {

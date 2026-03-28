@@ -58,7 +58,7 @@ describe("/start", () => {
     // Final reply contains connection info
     const lastReply = interaction.editReply.mock.calls.at(-1)![0] as string;
     expect(lastReply).toContain("gotowy");
-    expect(lastReply).toContain("enshrouded.example.com");
+    expect(lastReply).toContain("game.example.com");
   });
 
   test("server already exists — replies immediately, no creation", async () => {

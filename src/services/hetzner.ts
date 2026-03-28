@@ -92,7 +92,7 @@ export async function createSnapshot(
     `/servers/${serverId}/actions/create_image`,
     {
       method: "POST",
-      body: JSON.stringify({ type: "snapshot", description: `enshrouded-${Date.now()}` }),
+      body: JSON.stringify({ type: "snapshot", description: `snapshot-${Date.now()}` }),
     }
   );
   log.info(`Snapshot started`, { imageId: data.image.id, actionId: data.action.id });

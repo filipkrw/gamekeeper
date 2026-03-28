@@ -33,7 +33,7 @@ export const config = Object.freeze({
   },
   hetzner: {
     apiToken: required("HETZNER_API_TOKEN"),
-    serverName: optional("HETZNER_SERVER_NAME", "enshrouded"),
+    serverName: optional("HETZNER_SERVER_NAME", "game-server"),
     serverType: optional("HETZNER_SERVER_TYPE", "ccx23"),
     location: optional("HETZNER_LOCATION", "fsn1"),
     sshKeyNames: required("HETZNER_SSH_KEY_NAMES").split(",").map((s) => s.trim()),

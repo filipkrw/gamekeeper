@@ -63,7 +63,7 @@ To create a bot: go to the [Discord Developer Portal](https://discord.com/develo
 |---|---|---|---|
 | `HETZNER_API_TOKEN` | yes | — | Hetzner Cloud Console → your project → **Security** → **API Tokens** → **Generate API Token** (Read & Write) |
 | `HETZNER_SSH_KEY_NAMES` | yes | — | Comma-separated names of SSH keys to add to the server. Manage keys under **Security** → **SSH Keys** |
-| `HETZNER_SERVER_NAME` | no | `enshrouded` | Name assigned to the created server |
+| `HETZNER_SERVER_NAME` | no | `game-server` | Name assigned to the created server |
 | `HETZNER_SERVER_TYPE` | no | `ccx23` | Server type (CPU/RAM). See [Hetzner server types](https://www.hetzner.com/cloud) |
 | `HETZNER_LOCATION` | no | `fsn1` | Datacenter location: `fsn1`, `nbg1`, `hel1`, `ash`, `hil`, `sin` |
 
