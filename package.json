@@ -7,6 +7,7 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
     "register": "bun src/commands/register.ts",
+    "cf-zones": "bun src/scripts/cloudflare-zones.ts",
     "cf-records": "bun src/scripts/cloudflare-records.ts"
   },
   "devDependencies": {
