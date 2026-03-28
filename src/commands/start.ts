@@ -41,13 +41,9 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
     // Create server
     await interaction.editReply("Creating server from snapshot...");
     const server = await createServer(latestSnapshot.id);
-
-    // Wait for server to be running
-    await waitForServerRunning(server.id);
     const ip = server.public_net.ipv4.ip;
-    log.info(`Server running`, { ip });
 
-    // Update DNS
+    // Update DNS immediately (don't wait for running state)
     let hostname = config.cloudflare.domain;
     try {
       await updateDnsRecord(ip);
@@ -56,6 +52,10 @@ export async function handleStart(interaction: ChatInputCommandInteraction): Pro
       hostname = ip;
       await sendToChannel(`DNS update failed. Connect using IP: \`${ip}\``);
     }
+
+    // Wait for server to be running
+    await waitForServerRunning(server.id);
+    log.info(`Server running`, { ip });
 
     // Start background monitor
     monitor.start(ip, config.game.queryPort);
