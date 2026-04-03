@@ -7,6 +7,7 @@ import { handleStatus } from "./commands/status.ts";
 import { monitor } from "./monitor.ts";
 import { log } from "./logger.ts";
 import { locale } from "./messages.ts";
+import { handleMessage } from "./ai.ts";
 
 client.once("clientReady", async () => {
   log.info(`Logged in as ${client.user?.tag}`);
@@ -20,6 +21,8 @@ client.once("clientReady", async () => {
     domain: config.cloudflare.domain,
     idleTimeoutMs: config.idle.timeoutMs,
     maxSnapshots: config.snapshots.maxToKeep,
+    aiEnabled: config.ai.enabled,
+    ...(config.ai.enabled ? { aiModel: config.ai.model } : {}),
   });
 
   // Resume monitoring if server is already running (handles bot restarts)
@@ -61,6 +64,18 @@ client.on("interactionCreate", async (interaction) => {
       command: interaction.commandName,
       error: String(error),
     });
+  }
+});
+
+client.on("messageCreate", async (message) => {
+  if (!config.ai.enabled) return;
+  if (message.author.bot) return;
+  if (message.channelId !== config.discord.channelId) return;
+
+  try {
+    await handleMessage(message);
+  } catch (error) {
+    log.error("AI message handling failed", { error: String(error) });
   }
 });
 

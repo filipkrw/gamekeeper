@@ -1,7 +1,13 @@
 import { Client, GatewayIntentBits, type Message, type TextChannel } from "discord.js";
 import { config } from "./config.ts";
 
-export const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+export const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+});
 
 let notifyChannel: TextChannel | null = null;
 

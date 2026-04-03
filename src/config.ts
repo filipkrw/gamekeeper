@@ -57,4 +57,12 @@ export const config = Object.freeze({
   snapshots: {
     maxToKeep: optionalInt("MAX_SNAPSHOTS_TO_KEEP", 3),
   },
+  ai: {
+    enabled: optional("AI_ENABLED", "false") === "true" && !!Bun.env.AI_API_KEY,
+    apiKey: optional("AI_API_KEY", ""),
+    baseUrl: optional("AI_BASE_URL", "https://openrouter.ai/api/v1"),
+    model: optional("AI_MODEL", "openai/gpt-4o-mini"),
+    maxHistory: optionalInt("AI_MAX_HISTORY", 20),
+    memoriesPath: optional("AI_MEMORIES_PATH", "./data/memories.json"),
+  },
 });

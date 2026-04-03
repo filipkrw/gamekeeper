@@ -6,6 +6,7 @@ import { performStop } from "./commands/stop.ts";
 import { config } from "./config.ts";
 import { msg } from "./messages.ts";
 import { log } from "./logger.ts";
+import { aiEnhance } from "./ai.ts";
 
 class ServerMonitor {
   private timer: ReturnType<typeof setInterval> | null = null;
@@ -55,7 +56,7 @@ class ServerMonitor {
         this.failCount++;
         if (this.failCount >= 100) {
           log.warn("100 consecutive query failures, triggering shutdown");
-          await sendToChannel(msg.serverUnreachable);
+          await sendToChannel(await aiEnhance(msg.serverUnreachable));
           await this.triggerAutoStop();
         }
         return;
@@ -74,7 +75,7 @@ class ServerMonitor {
           this.isShuttingDown = true;
           const minutes = Math.round(config.idle.timeoutMs / 60_000);
           log.info("Idle timeout reached, shutdown scheduled", { gracePeriodMs: config.idle.gracePeriodMs });
-          await sendToChannel(msg.idleShutdownWarning(minutes));
+          await sendToChannel(await aiEnhance(msg.idleShutdownWarning(minutes)));
 
           setTimeout(async () => {
             if (!this.isShuttingDown) return;
@@ -84,7 +85,7 @@ class ServerMonitor {
             if (finalStatus && finalStatus.playerCount > 0) {
               this.isShuttingDown = false;
               this.idleStartedAt = null;
-              await sendToChannel(msg.shutdownCancelled);
+              await sendToChannel(await aiEnhance(msg.shutdownCancelled));
               return;
             }
 
@@ -143,7 +144,7 @@ class ServerMonitor {
     this.previousCount = currentCount;
 
     if (messages.length > 0) {
-      await sendToChannel(messages.join("\n"));
+      await sendToChannel(await aiEnhance(messages.join("\n")));
     }
   }
 
@@ -158,14 +159,14 @@ class ServerMonitor {
     try {
       const server = await findServer();
       if (!server) return;
-      const statusMsg = await sendToChannel(msg.autoStopped);
+      const statusMsg = await sendToChannel(await aiEnhance(msg.autoStopped));
       const deleted = await performStop(server.id, server.public_net.ipv4.ip, (content) => statusMsg.edit(content));
       if (!deleted) {
         this.start(this.host, this.port);
       }
     } catch (error) {
       log.error("Auto-stop failed", { error: String(error) });
-      await sendToChannel(msg.autoStopFailed(error instanceof Error ? error.message : String(error)));
+      await sendToChannel(await aiEnhance(msg.autoStopFailed(error instanceof Error ? error.message : String(error))));
     } finally {
       commandLock.release();
     }

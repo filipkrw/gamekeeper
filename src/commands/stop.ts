@@ -13,32 +13,33 @@ import { commandLock } from "../lock.ts";
 import { monitor } from "../monitor.ts";
 import { msg } from "../messages.ts";
 import { log } from "../logger.ts";
+import { aiEnhance } from "../ai.ts";
 
 export async function handleStop(interaction: ChatInputCommandInteraction): Promise<void> {
   if (!commandLock.acquire("stop")) {
-    await interaction.reply(msg.operationInProgress(commandLock.getOwner()));
+    await interaction.reply(await aiEnhance(msg.operationInProgress(commandLock.getOwner())));
     return;
   }
 
   try {
     const server = await findServer();
     if (!server) {
-      await interaction.reply(msg.noServerRunning);
+      await interaction.reply(await aiEnhance(msg.noServerRunning));
       return;
     }
 
     const ip = server.public_net.ipv4.ip;
     const gameStatus = await queryServer(ip, config.game.queryPort).catch(() => null);
     if (gameStatus && gameStatus.playerCount > 0) {
-      await interaction.reply(msg.playersOnline(gameStatus.playerCount));
+      await interaction.reply(await aiEnhance(msg.playersOnline(gameStatus.playerCount)));
       return;
     }
 
     await interaction.deferReply();
-    await performStop(server.id, ip, (msg) => interaction.editReply(msg));
+    await performStop(server.id, ip, (m) => interaction.editReply(m));
   } catch (error) {
     log.error("Stop command failed", { error: String(error) });
-    const errorMsg = msg.stopFailed(error instanceof Error ? error.message : String(error));
+    const errorMsg = await aiEnhance(msg.stopFailed(error instanceof Error ? error.message : String(error)));
     if (interaction.deferred) {
       await interaction.editReply(errorMsg);
     } else {
@@ -63,7 +64,7 @@ export async function performStop(
   let snapshotResult: { imageId: number; actionId: number } | null = null;
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      await reply(msg.creatingSnapshot);
+      await reply(await aiEnhance(msg.creatingSnapshot));
       snapshotResult = await createSnapshot(serverId);
       await waitForAction(snapshotResult.actionId);
       log.info("Snapshot completed", { imageId: snapshotResult.imageId });
@@ -71,7 +72,7 @@ export async function performStop(
     } catch (error) {
       log.error(`Snapshot attempt ${attempt} failed`, { error: String(error) });
       if (attempt === 2) {
-        await reply(msg.snapshotFailed);
+        await reply(await aiEnhance(msg.snapshotFailed));
         return false;
       }
     }
@@ -81,13 +82,13 @@ export async function performStop(
   // Treat a failed query (null) as "uncertain" — abort rather than risk deleting with someone on.
   const finalStatus = await queryServer(serverIp, config.game.queryPort).catch(() => null);
   if (!finalStatus || finalStatus.playerCount > 0) {
-    await reply(msg.playerJoinedDuringSnapshot);
+    await reply(await aiEnhance(msg.playerJoinedDuringSnapshot));
     return false;
   }
 
   // Delete server
   monitor.stop();
-  await reply(msg.deletingServer);
+  await reply(await aiEnhance(msg.deletingServer));
   await deleteServer(serverId);
 
   // Clean up old snapshots
@@ -104,6 +105,6 @@ export async function performStop(
     log.warn("Failed to clean up old snapshots", { error: String(error) });
   }
 
-  await reply(msg.serverStopped);
+  await reply(await aiEnhance(msg.serverStopped));
   return true;
 }

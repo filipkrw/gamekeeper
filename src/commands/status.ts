@@ -4,6 +4,7 @@ import { queryServer } from "../services/gamedig.ts";
 import { config } from "../config.ts";
 import { msg } from "../messages.ts";
 import { log } from "../logger.ts";
+import { aiEnhance } from "../ai.ts";
 
 export async function handleStatus(interaction: ChatInputCommandInteraction): Promise<void> {
   await interaction.deferReply();
@@ -12,7 +13,7 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
     const server = await findServer();
 
     if (!server) {
-      await interaction.editReply(msg.serverOffline);
+      await interaction.editReply(await aiEnhance(msg.serverOffline));
       return;
     }
 
@@ -52,6 +53,6 @@ export async function handleStatus(interaction: ChatInputCommandInteraction): Pr
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
     log.error("Status command failed", { error: String(error) });
-    await interaction.editReply(msg.statusFailed);
+    await interaction.editReply(await aiEnhance(msg.statusFailed));
   }
 }

@@ -12,64 +12,29 @@ import { sendToChannel } from "../discord.ts";
 import { monitor } from "../monitor.ts";
 import { msg } from "../messages.ts";
 import { log } from "../logger.ts";
+import { aiEnhance } from "../ai.ts";
 
 export async function handleStart(
   interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   if (!commandLock.acquire("start")) {
-    await interaction.reply(msg.operationInProgress(commandLock.getOwner()));
+    await interaction.reply(await aiEnhance(msg.operationInProgress(commandLock.getOwner())));
     return;
   }
 
   try {
     const existing = await findServer();
     if (existing) {
-      await interaction.reply(msg.serverAlreadyRunning);
+      await interaction.reply(await aiEnhance(msg.serverAlreadyRunning));
       return;
     }
 
     await interaction.deferReply();
-
-    // Find latest snapshot
-    const snapshots = await listSnapshots();
-    if (snapshots.length === 0) {
-      await interaction.editReply(msg.noSnapshotsFound);
-      return;
-    }
-
-    const latestSnapshot = snapshots[0]!;
-    log.info(`Using snapshot`, {
-      id: latestSnapshot.id,
-      created: latestSnapshot.created,
-    });
-
-    // Create server
-    await interaction.editReply(msg.creatingServer);
-    const server = await createServer(latestSnapshot.id);
-    const ip = server.public_net.ipv4.ip;
-
-    // Update DNS immediately (don't wait for running state)
-    let hostname = config.cloudflare.domain;
-    try {
-      await updateDnsRecord(ip);
-    } catch (error) {
-      log.error("DNS update failed, using raw IP", { error: String(error) });
-      hostname = ip;
-      await sendToChannel(msg.dnsUpdateFailed(ip));
-    }
-
-    // Start background monitor
-    monitor.start(ip, config.game.queryPort);
-
-    // Wait for game server to be queryable
-    await interaction.editReply(msg.waitingForGame);
-    log.info("Waiting for game server", { ip, port: config.game.queryPort, timeoutMs: config.game.serverReadyTimeoutMs });
-    await waitForGameReady(ip, config.game.queryPort, config.game.serverReadyTimeoutMs);
-    await interaction.editReply(msg.serverReady(hostname));
+    await performStart((m) => interaction.editReply(m));
   } catch (error) {
     log.error("Start command failed", { error: String(error) });
-    const errorMsg = msg.startFailed(
-      error instanceof Error ? error.message : String(error),
+    const errorMsg = await aiEnhance(
+      msg.startFailed(error instanceof Error ? error.message : String(error)),
     );
     if (interaction.deferred) {
       await interaction.editReply(errorMsg);
@@ -80,6 +45,47 @@ export async function handleStart(
   } finally {
     commandLock.release();
   }
+}
+
+/**
+ * Core start logic, reused by AI tool.
+ * `reply` is a callback to send progress updates — either interaction.editReply or sendToChannel.
+ */
+export async function performStart(
+  reply: (msg: string) => Promise<unknown>,
+): Promise<boolean> {
+  const snapshots = await listSnapshots();
+  if (snapshots.length === 0) {
+    await reply(await aiEnhance(msg.noSnapshotsFound));
+    return false;
+  }
+
+  const latestSnapshot = snapshots[0]!;
+  log.info(`Using snapshot`, {
+    id: latestSnapshot.id,
+    created: latestSnapshot.created,
+  });
+
+  await reply(await aiEnhance(msg.creatingServer));
+  const server = await createServer(latestSnapshot.id);
+  const ip = server.public_net.ipv4.ip;
+
+  let hostname = config.cloudflare.domain;
+  try {
+    await updateDnsRecord(ip);
+  } catch (error) {
+    log.error("DNS update failed, using raw IP", { error: String(error) });
+    hostname = ip;
+    await sendToChannel(await aiEnhance(msg.dnsUpdateFailed(ip)));
+  }
+
+  monitor.start(ip, config.game.queryPort);
+
+  await reply(await aiEnhance(msg.waitingForGame));
+  log.info("Waiting for game server", { ip, port: config.game.queryPort, timeoutMs: config.game.serverReadyTimeoutMs });
+  await waitForGameReady(ip, config.game.queryPort, config.game.serverReadyTimeoutMs);
+  await reply(await aiEnhance(msg.serverReady(hostname)));
+  return true;
 }
 
 async function waitForGameReady(

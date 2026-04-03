@@ -14,6 +14,7 @@ Bun.env.MAX_SNAPSHOTS_TO_KEEP = "3";
 Bun.env.IDLE_CHECK_INTERVAL_MS = "100";
 Bun.env.IDLE_TIMEOUT_MS = "0";
 Bun.env.SHUTDOWN_GRACE_PERIOD_MS = "100";
+Bun.env.AI_ENABLED = "false";
 
 // Mock Bun.sleep to resolve immediately in tests
 Bun.sleep = (() => Promise.resolve()) as typeof Bun.sleep;
